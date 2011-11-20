@@ -1,0 +1,9 @@
+author: H31IX
+database: false
+description: Teleportation
+main: net.h31ix.travelpad.Travelpad
+name: TravelPad
+startup: postworld
+url: http://H31IX.NET/
+version: '0.1'
+
