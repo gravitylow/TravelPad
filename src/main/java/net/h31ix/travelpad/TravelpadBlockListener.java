@@ -27,8 +27,11 @@ public class TravelpadBlockListener extends BlockListener {
                 Player player = event.getPlayer();
                 if (plugin.searchPads(player) != true)
                 {
-                plugin.createPad(player, block.getLocation());
-                plugin.createBlock(player, block);
+                Location location = block.getLocation();
+                int x = (int)location.getX();
+                int y = (int)location.getX();
+                int z = (int)location.getX();
+                plugin.createPad(player, x, y, z);
                 block.getRelative(BlockFace.EAST).setType(Material.STEP);
                 block.getRelative(BlockFace.WEST).setType(Material.STEP);
                 block.getRelative(BlockFace.NORTH).setType(Material.STEP);

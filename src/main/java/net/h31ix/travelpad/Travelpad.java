@@ -1,8 +1,7 @@
 package net.h31ix.travelpad;
 
 import java.io.File;
-import org.bukkit.Location;
-import org.bukkit.block.Block;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -26,23 +25,41 @@ public class Travelpad extends JavaPlugin {
 		} catch(Exception e) {
             }
         }
-    config = getConfiguration();         
+    config = getConfiguration();     
+    getCommand("travelpad").setExecutor(new TravelpadCommandHandler(this));
     PluginManager pluginManager = getServer().getPluginManager();
     pluginManager.registerEvent(org.bukkit.event.Event.Type.BLOCK_PLACE, blockListener, org.bukkit.event.Event.Priority.Low, this);
     }
     
-    
-    public void createBlock(Player player, Block block) {
-        String safenick = player.getName();
-        config.setProperty("Player's pads."+safenick+".block", block);
-        config.save();
+    public String searchCoords(int x, int y, int z) {
+       String name = config.getString("Coordinates."+x+"."+(y-1)+"."+z+".player");
+       System.out.println(name);
+       return name;
     }    
     
-    public void createPad(Player player, Location location) {
+    public boolean storeName(Player player, int x, int y, int z, String name)
+    {
         String safenick = player.getName();
-        config.setProperty("Player's pads."+safenick+".location.x", location.getX());
-        config.setProperty("Player's pads."+safenick+".location.y", location.getY());
-        config.setProperty("Player's pads."+safenick+".location.z", location.getZ());
+        String register = config.getString("Coordinates."+x+"."+(y-1)+"."+z+".player");
+        if (register.equalsIgnoreCase(safenick))
+        {
+            config.setProperty("Names."+name+".x", x);
+            config.setProperty("Names."+name+".y", y);
+            config.setProperty("Names."+name+".z", z);
+            config.save();
+            return true; 
+        }
+        else
+        {
+            return false;
+        }
+    }
+    public void createPad(Player player, int x, int y, int z) {
+        String safenick = player.getName();
+        config.setProperty("Player's pads."+safenick+".location.x", x);
+        config.setProperty("Player's pads."+safenick+".location.y", y);
+        config.setProperty("Player's pads."+safenick+".location.z", z);
+        config.setProperty("Coordinates."+x+"."+(y-1)+"."+z+".player", safenick);
         config.save();
     }
     

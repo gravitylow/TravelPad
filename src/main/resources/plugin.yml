@@ -6,4 +6,7 @@ name: TravelPad
 startup: postworld
 url: http://H31IX.NET/
 version: '0.1'
-
+commands:
+  travelpad: 
+    description: Use travelpad
+    usage: /travelpad 
