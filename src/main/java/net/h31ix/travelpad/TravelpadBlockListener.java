@@ -39,7 +39,7 @@ public class TravelpadBlockListener extends BlockListener {
                 public void run() {
                     plugin.checkNamed(player,x,y,z);
                     }
-                },  0x3e8L);
+                },      600L);
                 block.getRelative(BlockFace.EAST).setType(Material.STEP);
                 block.getRelative(BlockFace.WEST).setType(Material.STEP);
                 block.getRelative(BlockFace.NORTH).setType(Material.STEP);
@@ -52,8 +52,8 @@ public class TravelpadBlockListener extends BlockListener {
                 }, 10L);
                 player.sendMessage(ChatColor.AQUA + "You have just created a TravelPad!");
                 player.sendMessage(ChatColor.BLUE + "You must name this travel pad before it can be used.");
-                player.sendMessage(ChatColor.BLUE + "To name it, stand on top of the obsidian center and type ");
-                player.sendMessage(ChatColor.GREEN + "/travelpad name [name]");
+                player.sendMessage(ChatColor.BLUE + "To name it, type "+ChatColor.GREEN +"/travelpad name [name]");
+                player.sendMessage(ChatColor.BLUE + "If you do not register it within 30 seconds it will be deleted!");
                 }
                 else
                 {
@@ -99,20 +99,11 @@ public class TravelpadBlockListener extends BlockListener {
            if (name != null)
            {
            String safenick = player.getName();
-           boolean perm = plugin.hasPermission(player, "delete.all");
            if (!name.equalsIgnoreCase(safenick))
            {
-               if (perm == true)
-               {
-               plugin.removePortal(player,x,y,z);
-               player.sendMessage(ChatColor.AQUA + "TravelPad unregistered.");                  
-               }
-               else
-               {
                event.setCancelled(true);
                player.sendMessage(ChatColor.AQUA + "That portal is not registered to you!");
                }
-           }
            else
            {
                plugin.removePortal(player,x,y,z);
@@ -121,5 +112,5 @@ public class TravelpadBlockListener extends BlockListener {
                }
         }
     }
- }
+}
 

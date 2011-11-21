@@ -24,9 +24,15 @@ public class TravelpadCommandHandler implements CommandExecutor {
             if(cmd.getName().equalsIgnoreCase("travelpad")) {
                 if (args.length < 1)
                 {
-                   player.sendMessage(ChatColor.AQUA + "Commands:"); 
-                   player.sendMessage(ChatColor.AQUA + "/travelpad Identify - identifies the current pad you are standing on.");
-                   player.sendMessage(ChatColor.AQUA + "/travelpad Name [name] - names the current pad you are standing on.");
+                   player.sendMessage(ChatColor.RED + "Commands:"); 
+                   player.sendMessage(ChatColor.AQUA + "/travelpad Identify");
+                   player.sendMessage(ChatColor.BLUE + "Identifies the current pad you are standing on.");
+                   player.sendMessage(ChatColor.AQUA + "/travelpad Name [name]");
+                   player.sendMessage(ChatColor.BLUE + "Names the current pad you are standing on.");
+                   player.sendMessage(ChatColor.AQUA + "/travelpad tp [name]");
+                   player.sendMessage(ChatColor.BLUE + "Teleports your player to the specified travelpad."); 
+                   player.sendMessage(ChatColor.AQUA + "/travelpad delete");
+                   player.sendMessage(ChatColor.BLUE + "Deletes the travelpad you are standing on, if its yours.");                     
                 }
                 else if (args[0].equalsIgnoreCase("identify")) {
                     boolean perm = plugin.hasPermission(player, "identify");
@@ -55,13 +61,13 @@ public class TravelpadCommandHandler implements CommandExecutor {
                     boolean perm = plugin.hasPermission(player, "name");
                     if (perm == true)
                     {
-                    Location location = player.getLocation();
-                    int x = (int)location.getX();
-                    int y = (int)location.getY()-1;
-                    int z = (int)location.getZ();
+                    int x = plugin.searchPadX(player);
+                    int y = plugin.searchPadY(player);
+                    int z = plugin.searchPadZ(player);
+                    if (x!=0 && y!=0 && z!= 0)
+                    {
                     World world = player.getWorld();
                     String name = plugin.searchPlayerPortal(x,y,z);
-                    System.out.println(x+" "+y+" "+z);
                     if (name!= null) {
                         boolean store = plugin.storeName(player,x,y,z,args[1],world);
                         if (store == true) {
@@ -75,6 +81,7 @@ public class TravelpadCommandHandler implements CommandExecutor {
                         player.sendMessage(ChatColor.AQUA + "You are not standing on a registered Travel Pad"); 
                     }
                 }
+            }
                 else
                 {
                     player.sendMessage(ChatColor.RED + "You dont have that permission.");
@@ -175,9 +182,9 @@ public class TravelpadCommandHandler implements CommandExecutor {
                                 player.sendMessage(ChatColor.AQUA + "You must have 1 Enderman Pearl in your inventory to teleport!");
                             }                        
                         }
-                                                else
+                        else
                         {
-                        player.sendMessage(ChatColor.AQUA + "That TravelPad doesn't exist!");    
+                        player.sendMessage(ChatColor.AQUA + "You must be on a travel pad to use that command!");    
                         }
                     }
                     else

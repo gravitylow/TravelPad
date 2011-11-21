@@ -177,6 +177,42 @@ public class Travelpad extends JavaPlugin {
         config.save();
     }
     
+    public int searchPadX(Player player)
+    {
+        String safenick = player.getName();
+        int x = 0;
+        String xstring = config.getString("Player's pads."+safenick+".location.x");
+        if (xstring != null)
+        {
+        x = Integer.parseInt(xstring);    
+        }
+        return x;    
+    }
+    
+    public int searchPadY(Player player)
+    {
+        String safenick = player.getName();
+        int x = 0;
+        String xstring = config.getString("Player's pads."+safenick+".location.y");
+        if (xstring != null)
+        {
+        x = Integer.parseInt(xstring);    
+        }
+        return x;    
+    }  
+    
+    public int searchPadZ(Player player)
+    {
+        String safenick = player.getName();
+        int x = 0;
+        String xstring = config.getString("Player's pads."+safenick+".location.z");
+        if (xstring != null)
+        {
+        x = Integer.parseInt(xstring);    
+        }
+        return x;    
+    }    
+    
     public boolean searchPads(Player player) {
        String safenick = player.getName();
        String check = config.getString("Player's pads."+safenick);
