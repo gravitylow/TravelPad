@@ -2,11 +2,14 @@ package net.h31ix.travelpad;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 public class TravelpadCommandHandler implements CommandExecutor {
 	private final Travelpad plugin;
@@ -98,9 +101,32 @@ public class TravelpadCommandHandler implements CommandExecutor {
                     int z = plugin.searchNameZ(to);
                     if (x!=0 && y!=0 && z!=0)
                     {
+                        Location plocation = player.getLocation(); 
+                        int xx = (int)plocation.getX();
+                        int yy = (int)plocation.getY()-1;
+                        int zz = (int)plocation.getZ()-1;
+                        String name = plugin.searchPlayerPortal(xx, yy, zz);
+                        if (name != null)
+                        {
+                        Inventory inv = player.getInventory();
+                        ItemStack item = new ItemStack(Material.ENDER_PEARL, 1);
+                        if (inv.contains(item))
+                        {
+                        inv.remove(item);
                         World world = plugin.getWorld(to);
                         Location location = new Location(world,x,(y+1),z);
                         tpplayer.teleport(location);
+                        player.sendMessage(ChatColor.AQUA + "Woosh! You have arrived at "+to+". The price of your trip was 1 Enderman Pearl.");
+                        }
+                        else 
+                            {
+                                player.sendMessage(ChatColor.AQUA + "You must have 1 Enderman Pearl in your inventory to teleport!");
+                            }                        
+                        }
+                        else
+                        {
+                        player.sendMessage(ChatColor.AQUA + "You must be on a travel pad to use that command!");    
+                        }
                     }
                     }
                     else
