@@ -2,17 +2,16 @@ package net.h31ix.travelpad;
 
 import java.io.File;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
-
 public class Travelpad extends JavaPlugin {
     private TravelpadBlockListener blockListener = new TravelpadBlockListener(this); 
     private Configuration config;
     private boolean named;
+    private File configFile;
 
     public void onDisable() {
         System.out.println(this + " is now disabled!");
@@ -20,12 +19,9 @@ public class Travelpad extends JavaPlugin {
 
     public void onEnable() {
     new File("plugins/TravelPad").mkdir();
-    File configFile = new File("plugins/TravelPad/config.yml");
+    configFile = new File("plugins/TravelPad/config.yml");
 	if(!configFile.exists()) {
-            try {
-            configFile.createNewFile();
-		} catch(Exception e) {
-            }
+            makeConfig();
         }
     config = getConfiguration();     
     getCommand("travelpad").setExecutor(new TravelpadCommandHandler(this));
@@ -34,24 +30,65 @@ public class Travelpad extends JavaPlugin {
     pluginManager.registerEvent(org.bukkit.event.Event.Type.BLOCK_BREAK, blockListener, org.bukkit.event.Event.Priority.Low, this);
     }
     
+    public void makeConfig() {
+    try {
+        //Create a new blank config file
+        configFile.createNewFile();
+        } catch(Exception a) {
+            System.out.println("[TravelPad] Generated a new config file");
+        }
+    config = getConfiguration(); 
+    //Set all the config defaults, if they are not already set.
+    if (configFile.length()==0) {
+        config.setHeader("#TravelPad configuration file");
+        config.setProperty("Take ender pearl on tp", "true");
+        config.save(); 		
+	}
+    }
+    
+    public boolean checkEnderSetting()
+    {
+        String result = config.getString("Take ender pearl on tp");
+        if (result.equalsIgnoreCase("true"))
+                {
+                    return true;
+                }
+        else
+        {
+            return false;
+        }
+    }
+    
     public int searchNameX(String name)
     {
         int x = 0;
-        x = Integer.parseInt(config.getString("Names."+name+".x"));
+        String xstring = config.getString("Names."+name+".x");
+        if (xstring != null)
+        {
+        x = Integer.parseInt(config.getString("Names."+name+".x"));    
+        }
         return x;
     }
     
     public int searchNameY(String name)
     {
         int y = 0;
-        y = Integer.parseInt(config.getString("Names."+name+".y"));
+        String ystring = config.getString("Names."+name+".y");
+        if (ystring != null)
+        {
+        y = Integer.parseInt(config.getString("Names."+name+".y"));    
+        }
         return y;
     }
     
     public int searchNameZ(String name)
     {
         int z = 0;
-        z = Integer.parseInt(config.getString("Names."+name+".z"));
+        String zstring = config.getString("Names."+name+".z");
+        if (zstring != null)
+        {
+        z = Integer.parseInt(config.getString("Names."+name+".z"));    
+        }
         return z;
     }    
     
@@ -87,6 +124,22 @@ public class Travelpad extends JavaPlugin {
         config.removeProperty("Coordinates."+x+"."+(y-1)+"."+z);
         config.removeProperty("Coordinates."+x+"."+(y-1));
         config.removeProperty("Coordinates."+x);        
+    }
+    
+    public boolean hasPermission(Player player, String permission)
+    {
+        if (player.hasPermission("travelpad."+permission))
+        {
+            return true;
+        }
+        else if (player.isOp())
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
     
     public boolean storeName(Player player, int x, int y, int z, String name, World world)

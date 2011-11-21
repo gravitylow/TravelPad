@@ -20,17 +20,20 @@ public class TravelpadBlockListener extends BlockListener {
     @Override
     public void onBlockPlace (BlockPlaceEvent event) {
         final Block block = event.getBlock();
+        final Player player = event.getPlayer();
+        Location location = block.getLocation();
+        final int x = (int)location.getX();
+        final int y = (int)location.getY();
+        final int z = (int)location.getZ();        
         if(event.getBlock().getType() == Material.OBSIDIAN)
         {
             if (block.getRelative(BlockFace.EAST).getType() == Material.BRICK && block.getRelative(BlockFace.WEST).getType() == Material.BRICK && block.getRelative(BlockFace.NORTH).getType() == Material.BRICK && block.getRelative(BlockFace.SOUTH).getType() == Material.BRICK)
             {
-                final Player player = event.getPlayer();
+                boolean perm = plugin.hasPermission(player, "create");
+                if (perm == true)
+                {
                 if (plugin.searchPads(player) != true)
                 {
-                Location location = block.getLocation();
-                final int x = (int)location.getX();
-                final int y = (int)location.getY();
-                final int z = (int)location.getZ();
                 plugin.createPad(player, x, y, z);
                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
                 public void run() {
@@ -56,41 +59,12 @@ public class TravelpadBlockListener extends BlockListener {
                 {
                 player.sendMessage(ChatColor.AQUA + "Sorry, but you already have a TravelPad.");
                 }
-            }
-        }
-        else
-        {
-            Location location = block.getLocation();
-            final int x = (int)location.getX();
-            final int y = (int)location.getX();
-            final int z = (int)location.getX();            
-        }
-    }
-    
-    @Override
-    public void onBlockBreak (BlockBreakEvent event) {
-           Player player = event.getPlayer();
-           Location location = event.getBlock().getLocation(); 
-           final int x = (int)location.getX();
-           final int y = (int)location.getY();
-           final int z = (int)location.getZ();  
-        if(event.getBlock().getType() == Material.OBSIDIAN)
-        {
-           String name = plugin.searchPlayerPortal(x, y, z);
-           if (name != null)
-           {
-           String safenick = player.getName();
-           if (!name.equalsIgnoreCase(safenick))
-           {
-               event.setCancelled(true);
-               player.sendMessage(ChatColor.AQUA + "That portal is not registered to you!");
-           }
-           else
-           {
-               plugin.removePortal(player,x,y,z);
-               player.sendMessage(ChatColor.AQUA + "TravelPad unregistered.");
-           }
                }
+                else
+                {
+                    player.sendMessage(ChatColor.RED + "You dont have that permission.");
+                }
+            }
         }
         else
         {
@@ -109,6 +83,42 @@ public class TravelpadBlockListener extends BlockListener {
                 player.sendMessage(ChatColor.AQUA + "You cannot place blocks on a travelpad!");
             }
         }
+        }
+    }
+    
+    @Override
+    public void onBlockBreak (BlockBreakEvent event) {
+           Player player = event.getPlayer();
+           Location location = event.getBlock().getLocation(); 
+           final int x = (int)location.getX();
+           final int y = (int)location.getY();
+           final int z = (int)location.getZ();  
+        if(event.getBlock().getType() == Material.OBSIDIAN)
+        {
+           String name = plugin.searchPlayerPortal(x, y, z);
+           if (name != null)
+           {
+           String safenick = player.getName();
+           boolean perm = plugin.hasPermission(player, "delete.all");
+           if (!name.equalsIgnoreCase(safenick))
+           {
+               if (perm == true)
+               {
+               plugin.removePortal(player,x,y,z);
+               player.sendMessage(ChatColor.AQUA + "TravelPad unregistered.");                  
+               }
+               else
+               {
+               event.setCancelled(true);
+               player.sendMessage(ChatColor.AQUA + "That portal is not registered to you!");
+               }
+           }
+           else
+           {
+               plugin.removePortal(player,x,y,z);
+               player.sendMessage(ChatColor.AQUA + "TravelPad unregistered.");
+           }
+               }
         }
     }
  }
