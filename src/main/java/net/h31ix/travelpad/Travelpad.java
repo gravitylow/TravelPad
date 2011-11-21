@@ -2,6 +2,8 @@ package net.h31ix.travelpad;
 
 import java.io.File;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -13,7 +15,6 @@ public class Travelpad extends JavaPlugin {
     private boolean named;
 
     public void onDisable() {
-        // TODO: Place any custom disable code here.
         System.out.println(this + " is now disabled!");
     }
 
@@ -33,6 +34,27 @@ public class Travelpad extends JavaPlugin {
     pluginManager.registerEvent(org.bukkit.event.Event.Type.BLOCK_BREAK, blockListener, org.bukkit.event.Event.Priority.Low, this);
     }
     
+    public int searchNameX(String name)
+    {
+        int x = 0;
+        x = Integer.parseInt(config.getString("Names."+name+".x"));
+        return x;
+    }
+    
+    public int searchNameY(String name)
+    {
+        int y = 0;
+        y = Integer.parseInt(config.getString("Names."+name+".y"));
+        return y;
+    }
+    
+    public int searchNameZ(String name)
+    {
+        int z = 0;
+        z = Integer.parseInt(config.getString("Names."+name+".z"));
+        return z;
+    }    
+    
     public String searchCoords(int x, int y, int z) {
        String name = config.getString("Coordinates."+x+"."+(y-1)+"."+z+".name");
        return name;
@@ -45,14 +67,11 @@ public class Travelpad extends JavaPlugin {
     
     public void checkNamed(Player player, int x, int y, int z)
     {
-        System.out.println("Checking named");
         if (named != true)
-        {
-         System.out.println("named false");   
+        {  
         removePortal(player,x,y,z);
         player.sendMessage(ChatColor.AQUA + "Your TravelPad has expired because it was not named.");
         }
-        System.out.println("named true");
     }
     
     public void removePortal(Player player, int x, int y, int z)
@@ -70,15 +89,17 @@ public class Travelpad extends JavaPlugin {
         config.removeProperty("Coordinates."+x);        
     }
     
-    public boolean storeName(Player player, int x, int y, int z, String name)
+    public boolean storeName(Player player, int x, int y, int z, String name, World world)
     {
         String safenick = player.getName();
         String register = config.getString("Coordinates."+x+"."+(y-1)+"."+z+".player");
+        String worldname = world.getName();
         if (register.equalsIgnoreCase(safenick))
         {
             config.setProperty("Names."+name+".x", x);
             config.setProperty("Names."+name+".y", y);
             config.setProperty("Names."+name+".z", z);
+            config.setProperty("Names."+name+".world", worldname);
             config.setProperty("Coordinates."+x+"."+(y-1)+"."+z+".name", name);
             config.save();
             named = true;
@@ -88,6 +109,11 @@ public class Travelpad extends JavaPlugin {
         {
             return false;
         }
+    }
+    
+    public World getWorld(String name) {
+        World world = getServer().getWorld(config.getString("Names."+name+".world"));
+        return world;
     }
     public void createPad(Player player, int x, int y, int z) {
         String safenick = player.getName();
@@ -101,7 +127,6 @@ public class Travelpad extends JavaPlugin {
     public boolean searchPads(Player player) {
        String safenick = player.getName();
        String check = config.getString("Player's pads."+safenick);
-       System.out.println(check);
        if (check == null)
        {
            return false;

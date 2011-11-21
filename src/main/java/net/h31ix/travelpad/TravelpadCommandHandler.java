@@ -2,6 +2,7 @@ package net.h31ix.travelpad;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -27,8 +28,8 @@ public class TravelpadCommandHandler implements CommandExecutor {
                 else if (args[0].equalsIgnoreCase("identify")) { 
                     Location location = player.getLocation();
                     int x = (int)location.getX();
-                    int y = (int)location.getX();
-                    int z = (int)location.getX();
+                    int y = (int)location.getY()-1;
+                    int z = (int)location.getZ()-1;
                     String name = plugin.searchCoords(x,y,z);
                     if (name!= null) {
                         player.sendMessage(ChatColor.AQUA + "You are standing on the portal named "+name);
@@ -42,11 +43,13 @@ public class TravelpadCommandHandler implements CommandExecutor {
                     {
                     Location location = player.getLocation();
                     int x = (int)location.getX();
-                    int y = (int)location.getX();
-                    int z = (int)location.getX();
+                    int y = (int)location.getY()-1;
+                    int z = (int)location.getZ()-1;
+                    World world = player.getWorld();
                     String name = plugin.searchPlayerPortal(x,y,z);
+                    System.out.println(x+" "+y+" "+z);
                     if (name!= null) {
-                        boolean store = plugin.storeName(player,x,y,z,args[1]);
+                        boolean store = plugin.storeName(player,x,y,z,args[1],world);
                         if (store == true) {
                             player.sendMessage(ChatColor.AQUA + "Registered this TravelPad with the name "+args[1]);
                         }
@@ -66,9 +69,9 @@ public class TravelpadCommandHandler implements CommandExecutor {
                     if (args.length == 1)
                             {
                                 Location location = player.getLocation(); 
-                                final int x = (int)location.getX();
-                                final int y = (int)location.getX();
-                                final int z = (int)location.getX();  
+                                int x = (int)location.getX();
+                                int y = (int)location.getY()-1;
+                                int z = (int)location.getZ()-1;
                                 String name = plugin.searchPlayerPortal(x, y, z);
                                 if (name != null)
                                {
@@ -83,6 +86,26 @@ public class TravelpadCommandHandler implements CommandExecutor {
                                    player.sendMessage(ChatColor.AQUA + "TravelPad unregistered.");
                                }
                           }
+                    }
+                } 
+                else if (args[0].equalsIgnoreCase("tp")) {
+                    Player tpplayer = (Player)cs;
+                    if (args.length == 2)
+                    {
+                    String to = args[1];
+                    int x = plugin.searchNameX(to);
+                    int y = plugin.searchNameY(to);
+                    int z = plugin.searchNameZ(to);
+                    if (x!=0 && y!=0 && z!=0)
+                    {
+                        World world = plugin.getWorld(to);
+                        Location location = new Location(world,x,(y+1),z);
+                        tpplayer.teleport(location);
+                    }
+                    }
+                    else
+                    {
+                    player.sendMessage(ChatColor.AQUA + "Usage: /travelpad tp [name]");    
                     }
                 }
             }

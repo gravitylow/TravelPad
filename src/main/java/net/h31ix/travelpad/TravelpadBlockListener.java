@@ -19,9 +19,9 @@ public class TravelpadBlockListener extends BlockListener {
      
     @Override
     public void onBlockPlace (BlockPlaceEvent event) {
+        final Block block = event.getBlock();
         if(event.getBlock().getType() == Material.OBSIDIAN)
         {
-            final Block block = event.getBlock();
             if (block.getRelative(BlockFace.EAST).getType() == Material.BRICK && block.getRelative(BlockFace.WEST).getType() == Material.BRICK && block.getRelative(BlockFace.NORTH).getType() == Material.BRICK && block.getRelative(BlockFace.SOUTH).getType() == Material.BRICK)
             {
                 final Player player = event.getPlayer();
@@ -29,8 +29,8 @@ public class TravelpadBlockListener extends BlockListener {
                 {
                 Location location = block.getLocation();
                 final int x = (int)location.getX();
-                final int y = (int)location.getX();
-                final int z = (int)location.getX();
+                final int y = (int)location.getY();
+                final int z = (int)location.getZ();
                 plugin.createPad(player, x, y, z);
                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
                 public void run() {
@@ -47,7 +47,6 @@ public class TravelpadBlockListener extends BlockListener {
                     block.getRelative(BlockFace.UP).setType(Material.AIR);
                     }
                 }, 10L);
-                System.out.println(player.getName() + " created a travel pad at "+block.getLocation());
                 player.sendMessage(ChatColor.AQUA + "You have just created a TravelPad!");
                 player.sendMessage(ChatColor.BLUE + "You must name this travel pad before it can be used.");
                 player.sendMessage(ChatColor.BLUE + "To name it, stand on top of the obsidian center and type ");
@@ -59,17 +58,24 @@ public class TravelpadBlockListener extends BlockListener {
                 }
             }
         }
+        else
+        {
+            Location location = block.getLocation();
+            final int x = (int)location.getX();
+            final int y = (int)location.getX();
+            final int z = (int)location.getX();            
+        }
     }
     
     @Override
     public void onBlockBreak (BlockBreakEvent event) {
-        if(event.getBlock().getType() == Material.OBSIDIAN)
-        {
            Player player = event.getPlayer();
            Location location = event.getBlock().getLocation(); 
            final int x = (int)location.getX();
-           final int y = (int)location.getX();
-           final int z = (int)location.getX();  
+           final int y = (int)location.getY();
+           final int z = (int)location.getZ();  
+        if(event.getBlock().getType() == Material.OBSIDIAN)
+        {
            String name = plugin.searchPlayerPortal(x, y, z);
            if (name != null)
            {
@@ -85,6 +91,24 @@ public class TravelpadBlockListener extends BlockListener {
                player.sendMessage(ChatColor.AQUA + "TravelPad unregistered.");
            }
                }
+        }
+        else
+        {
+            String name = plugin.searchPlayerPortal(x, (y-1), z); 
+            if (name!= null)
+                {
+                    event.setCancelled(true);
+                    player.sendMessage(ChatColor.AQUA + "You cannot place blocks on a travelpad!");
+                }
+         else
+         {
+            name = plugin.searchPlayerPortal(x, (y-2), z);   
+            if (name!= null)
+            {
+                event.setCancelled(true);
+                player.sendMessage(ChatColor.AQUA + "You cannot place blocks on a travelpad!");
+            }
+        }
         }
     }
  }
