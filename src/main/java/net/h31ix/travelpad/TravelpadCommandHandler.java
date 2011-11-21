@@ -62,8 +62,31 @@ public class TravelpadCommandHandler implements CommandExecutor {
                         player.sendMessage(ChatColor.AQUA + "Usage: /travelpad Name [name]");
                     }   
             }
-                
+                else if (args[0].equalsIgnoreCase("delete")) {
+                    if (args.length == 1)
+                            {
+                                Location location = player.getLocation(); 
+                                final int x = (int)location.getX();
+                                final int y = (int)location.getX();
+                                final int z = (int)location.getX();  
+                                String name = plugin.searchPlayerPortal(x, y, z);
+                                if (name != null)
+                               {
+                               String safenick = player.getName();
+                               if (!name.equalsIgnoreCase(safenick))
+                               {
+                                   player.sendMessage(ChatColor.AQUA + "That portal is not registered to you!");
+                               }
+                               else
+                               {
+                                   plugin.removePortal(player,x,y,z);
+                                   player.sendMessage(ChatColor.AQUA + "TravelPad unregistered.");
+                               }
+                          }
+                    }
+                }
             }
+                
             return true;
         }
-}
+    }

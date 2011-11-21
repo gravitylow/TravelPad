@@ -63,10 +63,28 @@ public class TravelpadBlockListener extends BlockListener {
     
     @Override
     public void onBlockBreak (BlockBreakEvent event) {
-        Block block = event.getBlock();
         if(event.getBlock().getType() == Material.OBSIDIAN)
         {
+           Player player = event.getPlayer();
            Location location = event.getBlock().getLocation(); 
+           final int x = (int)location.getX();
+           final int y = (int)location.getX();
+           final int z = (int)location.getX();  
+           String name = plugin.searchPlayerPortal(x, y, z);
+           if (name != null)
+           {
+           String safenick = player.getName();
+           if (!name.equalsIgnoreCase(safenick))
+           {
+               event.setCancelled(true);
+               player.sendMessage(ChatColor.AQUA + "That portal is not registered to you!");
+           }
+           else
+           {
+               plugin.removePortal(player,x,y,z);
+               player.sendMessage(ChatColor.AQUA + "TravelPad unregistered.");
+           }
+               }
         }
     }
  }

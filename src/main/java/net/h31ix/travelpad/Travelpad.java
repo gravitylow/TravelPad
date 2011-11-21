@@ -30,6 +30,7 @@ public class Travelpad extends JavaPlugin {
     getCommand("travelpad").setExecutor(new TravelpadCommandHandler(this));
     PluginManager pluginManager = getServer().getPluginManager();
     pluginManager.registerEvent(org.bukkit.event.Event.Type.BLOCK_PLACE, blockListener, org.bukkit.event.Event.Priority.Low, this);
+    pluginManager.registerEvent(org.bukkit.event.Event.Type.BLOCK_BREAK, blockListener, org.bukkit.event.Event.Priority.Low, this);
     }
     
     public String searchCoords(int x, int y, int z) {
@@ -44,16 +45,29 @@ public class Travelpad extends JavaPlugin {
     
     public void checkNamed(Player player, int x, int y, int z)
     {
+        System.out.println("Checking named");
         if (named != true)
         {
+         System.out.println("named false");   
+        removePortal(player,x,y,z);
+        player.sendMessage(ChatColor.AQUA + "Your TravelPad has expired because it was not named.");
+        }
+        System.out.println("named true");
+    }
+    
+    public void removePortal(Player player, int x, int y, int z)
+    {
         String safenick = player.getName();
+        String name = config.getString("Coordinates."+x+"."+(y-1)+"."+z+".name");
+        if (name != null)
+        {
+        config.removeProperty("Names."+name);
+        }
         config.removeProperty("Player's pads."+safenick);
         config.removeProperty("Coordinates."+x+"."+(y-1)+"."+z+".player");
         config.removeProperty("Coordinates."+x+"."+(y-1)+"."+z);
         config.removeProperty("Coordinates."+x+"."+(y-1));
-        config.removeProperty("Coordinates."+x);
-        player.sendMessage(ChatColor.AQUA + "Your TravelPad has expired because it was not named.");
-        }
+        config.removeProperty("Coordinates."+x);        
     }
     
     public boolean storeName(Player player, int x, int y, int z, String name)
