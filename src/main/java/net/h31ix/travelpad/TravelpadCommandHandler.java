@@ -31,10 +31,10 @@ public class TravelpadCommandHandler implements CommandExecutor {
                     int z = (int)location.getX();
                     String name = plugin.searchCoords(x,y,z);
                     if (name!= null) {
-                        player.sendMessage(ChatColor.AQUA + "You are standing on the portal by "+name);
+                        player.sendMessage(ChatColor.AQUA + "You are standing on the portal named "+name);
                     }
                     else {
-                        player.sendMessage(ChatColor.AQUA + "You are not standing on a registered Travel Pad"); 
+                        player.sendMessage(ChatColor.AQUA + "You are not standing on a registered TravelPad"); 
                     }
                 }
                 else if (args[0].equalsIgnoreCase("name")) { 
@@ -44,14 +44,14 @@ public class TravelpadCommandHandler implements CommandExecutor {
                     int x = (int)location.getX();
                     int y = (int)location.getX();
                     int z = (int)location.getX();
-                    String name = plugin.searchCoords(x,y,z);
+                    String name = plugin.searchPlayerPortal(x,y,z);
                     if (name!= null) {
                         boolean store = plugin.storeName(player,x,y,z,args[1]);
                         if (store == true) {
-                            player.sendMessage(ChatColor.AQUA + "Registered this portal with the name "+args[1]);
+                            player.sendMessage(ChatColor.AQUA + "Registered this TravelPad with the name "+args[1]);
                         }
                         else {
-                            player.sendMessage(ChatColor.AQUA + "That is not your portal to register!");
+                            player.sendMessage(ChatColor.AQUA + "That is not your TravelPad to register!");
                         }
                     }
                     else {

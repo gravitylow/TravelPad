@@ -10,6 +10,7 @@ import org.bukkit.util.config.Configuration;
 public class Travelpad extends JavaPlugin {
     private TravelpadBlockListener blockListener = new TravelpadBlockListener(this); 
     private Configuration config;
+    private boolean named;
 
     public void onDisable() {
         // TODO: Place any custom disable code here.
@@ -32,10 +33,28 @@ public class Travelpad extends JavaPlugin {
     }
     
     public String searchCoords(int x, int y, int z) {
+       String name = config.getString("Coordinates."+x+"."+(y-1)+"."+z+".name");
+       return name;
+    }  
+    
+    public String searchPlayerPortal(int x, int y, int z) {
        String name = config.getString("Coordinates."+x+"."+(y-1)+"."+z+".player");
-       System.out.println(name);
        return name;
     }    
+    
+    public void checkNamed(Player player, int x, int y, int z)
+    {
+        if (named != true)
+        {
+        String safenick = player.getName();
+        config.removeProperty("Player's pads."+safenick);
+        config.removeProperty("Coordinates."+x+"."+(y-1)+"."+z+".player");
+        config.removeProperty("Coordinates."+x+"."+(y-1)+"."+z);
+        config.removeProperty("Coordinates."+x+"."+(y-1));
+        config.removeProperty("Coordinates."+x);
+        player.sendMessage(ChatColor.AQUA + "Your TravelPad has expired because it was not named.");
+        }
+    }
     
     public boolean storeName(Player player, int x, int y, int z, String name)
     {
@@ -46,7 +65,9 @@ public class Travelpad extends JavaPlugin {
             config.setProperty("Names."+name+".x", x);
             config.setProperty("Names."+name+".y", y);
             config.setProperty("Names."+name+".z", z);
+            config.setProperty("Coordinates."+x+"."+(y-1)+"."+z+".name", name);
             config.save();
+            named = true;
             return true; 
         }
         else

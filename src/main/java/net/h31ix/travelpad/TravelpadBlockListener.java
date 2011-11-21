@@ -24,14 +24,19 @@ public class TravelpadBlockListener extends BlockListener {
             final Block block = event.getBlock();
             if (block.getRelative(BlockFace.EAST).getType() == Material.BRICK && block.getRelative(BlockFace.WEST).getType() == Material.BRICK && block.getRelative(BlockFace.NORTH).getType() == Material.BRICK && block.getRelative(BlockFace.SOUTH).getType() == Material.BRICK)
             {
-                Player player = event.getPlayer();
+                final Player player = event.getPlayer();
                 if (plugin.searchPads(player) != true)
                 {
                 Location location = block.getLocation();
-                int x = (int)location.getX();
-                int y = (int)location.getX();
-                int z = (int)location.getX();
+                final int x = (int)location.getX();
+                final int y = (int)location.getX();
+                final int z = (int)location.getX();
                 plugin.createPad(player, x, y, z);
+                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+                public void run() {
+                    plugin.checkNamed(player,x,y,z);
+                    }
+                },  0x3e8L);
                 block.getRelative(BlockFace.EAST).setType(Material.STEP);
                 block.getRelative(BlockFace.WEST).setType(Material.STEP);
                 block.getRelative(BlockFace.NORTH).setType(Material.STEP);
@@ -39,11 +44,14 @@ public class TravelpadBlockListener extends BlockListener {
                 block.getRelative(BlockFace.UP).setType(Material.WATER);
                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
                 public void run() {
-                block.getRelative(BlockFace.UP).setType(Material.AIR);
-                }
+                    block.getRelative(BlockFace.UP).setType(Material.AIR);
+                    }
                 }, 10L);
                 System.out.println(player.getName() + " created a travel pad at "+block.getLocation());
                 player.sendMessage(ChatColor.AQUA + "You have just created a TravelPad!");
+                player.sendMessage(ChatColor.BLUE + "You must name this travel pad before it can be used.");
+                player.sendMessage(ChatColor.BLUE + "To name it, stand on top of the obsidian center and type ");
+                player.sendMessage(ChatColor.GREEN + "/travelpad name [name]");
                 }
                 else
                 {
