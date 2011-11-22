@@ -2,7 +2,10 @@ package net.h31ix.travelpad;
 
 import java.io.File;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -90,7 +93,7 @@ public class Travelpad extends JavaPlugin {
         z = Integer.parseInt(config.getString("Names."+name+".z"));    
         }
         return z;
-    }    
+    }  
     
     public String searchCoords(int x, int y, int z) {
        String name = config.getString("Coordinates."+x+"."+(y-1)+"."+z+".name");
@@ -109,6 +112,7 @@ public class Travelpad extends JavaPlugin {
         removePortal(player,x,y,z);
         player.sendMessage(ChatColor.AQUA + "Your TravelPad has expired because it was not named.");
         }
+        named = false;
     }
     
     public void removePortal(Player player, int x, int y, int z)
@@ -117,13 +121,19 @@ public class Travelpad extends JavaPlugin {
         String name = config.getString("Coordinates."+x+"."+(y-1)+"."+z+".name");
         if (name != null)
         {
+        World world = getServer().getWorld(config.getString("Names."+name+".world"));
         config.removeProperty("Names."+name);
+        Location location = new Location(world,x,y,z);
+        location.getBlock().getRelative(BlockFace.EAST).setType(Material.AIR);
+        location.getBlock().getRelative(BlockFace.NORTH).setType(Material.AIR);
+        location.getBlock().getRelative(BlockFace.SOUTH).setType(Material.AIR);
+        location.getBlock().getRelative(BlockFace.WEST).setType(Material.AIR);
         }
         config.removeProperty("Player's pads."+safenick);
         config.removeProperty("Coordinates."+x+"."+(y-1)+"."+z+".player");
         config.removeProperty("Coordinates."+x+"."+(y-1)+"."+z);
         config.removeProperty("Coordinates."+x+"."+(y-1));
-        config.removeProperty("Coordinates."+x);        
+        config.removeProperty("Coordinates."+x);   
     }
     
     public boolean hasPermission(Player player, String permission)

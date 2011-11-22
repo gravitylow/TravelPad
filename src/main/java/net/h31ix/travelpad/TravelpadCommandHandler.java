@@ -111,7 +111,11 @@ public class TravelpadCommandHandler implements CommandExecutor {
                                    boolean perm = plugin.hasPermission(player, "delete");
                                    if (perm == true)
                                    {
+                                   String tpname = plugin.searchCoords(x, y, z);
+                                   System.out.println(tpname);
                                    plugin.removePortal(player,x,y,z);
+                                   Location newloc = new Location(player.getWorld(),x,y,z);
+                                   newloc.getBlock().setType(Material.AIR);
                                    player.sendMessage(ChatColor.AQUA + "TravelPad unregistered.");
                                    }
                                    else
@@ -132,7 +136,9 @@ public class TravelpadCommandHandler implements CommandExecutor {
                     {
                     if (xx!=0 && yy!=0 && zz!=0)
                     {
+                        Location newloc = new Location(plugin.getWorld(args[1]),xx,yy,zz);
                         plugin.removePortal(player,xx,yy,zz);
+                        newloc.getBlock().setType(Material.AIR);
                         player.sendMessage(ChatColor.AQUA + "TravelPad unregistered.");
                     }
                     }
