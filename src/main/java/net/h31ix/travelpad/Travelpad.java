@@ -114,7 +114,7 @@ public class Travelpad extends JavaPlugin {
         }
     }
     
-    public boolean checkPad(String query)
+    public boolean checkPad(String query, Player player)
     {
         String playername = null;
        try {
@@ -129,7 +129,13 @@ public class Travelpad extends JavaPlugin {
         }
        if (playername != null)
        {
-           return true;
+           if (player.hasPermission("travelpad.infinite") || player.isOp())
+           {
+               return false;
+           }
+           else {
+               return true;
+           }
        }
        else
        {
