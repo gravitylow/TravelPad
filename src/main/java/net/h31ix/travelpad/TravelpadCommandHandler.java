@@ -28,13 +28,13 @@ public class TravelpadCommandHandler implements CommandExecutor {
                    player.sendMessage(ChatColor.AQUA + "/travelpad Identify");
                    player.sendMessage(ChatColor.BLUE + "Identifies the current pad you are standing on.");
                    player.sendMessage(ChatColor.AQUA + "/travelpad Name [name]");
-                   player.sendMessage(ChatColor.BLUE + "Names the current pad you are standing on.");
+                   player.sendMessage(ChatColor.BLUE + "Names your created pad.");
                    player.sendMessage(ChatColor.AQUA + "/travelpad tp [name]");
                    player.sendMessage(ChatColor.BLUE + "Teleports your player to the specified travelpad."); 
                    player.sendMessage(ChatColor.AQUA + "/travelpad delete");
                    player.sendMessage(ChatColor.BLUE + "Deletes the travelpad you are standing on, if its yours.");                     
                 }
-                else if (args[0].equalsIgnoreCase("identify")) {
+                /**else if (args[0].equalsIgnoreCase("identify")) {
                     boolean perm = plugin.hasPermission(player, "identify");
                     if (perm == true)
                     {
@@ -54,22 +54,17 @@ public class TravelpadCommandHandler implements CommandExecutor {
                     {
                         player.sendMessage(ChatColor.RED + "You dont have that permission.");
                     }
-                }
+                }**/
                 else if (args[0].equalsIgnoreCase("name")) { 
                     if (args.length == 2)
                     {
                     boolean perm = plugin.hasPermission(player, "name");
                     if (perm == true)
                     {
-                    int x = plugin.searchPadX(player);
-                    int y = plugin.searchPadY(player);
-                    int z = plugin.searchPadZ(player);
-                    if (x!=0 && y!=0 && z!= 0)
+                    if (plugin.hasPortal(player) == true)
                     {
-                    World world = player.getWorld();
-                    String name = plugin.searchPlayerPortal(x,y,z);
-                    if (name!= null) {
-                        boolean store = plugin.storeName(player,x,y,z,args[1],world);
+                    if (plugin.isNamed(player) == true) {
+                        boolean store = plugin.storeName(player,args[1]);
                         if (store == true) {
                             player.sendMessage(ChatColor.AQUA + "Registered this TravelPad with the name "+args[1]);
                         }
@@ -91,7 +86,7 @@ public class TravelpadCommandHandler implements CommandExecutor {
                         player.sendMessage(ChatColor.AQUA + "Usage: /travelpad Name [name]");
                     }
             }
-                else if (args[0].equalsIgnoreCase("delete")) {
+                /**else if (args[0].equalsIgnoreCase("delete")) {
                     if (args.length == 1)
                             {
                                 Location location = player.getLocation(); 
@@ -202,7 +197,7 @@ public class TravelpadCommandHandler implements CommandExecutor {
                     {
                     player.sendMessage(ChatColor.AQUA + "Usage: /travelpad tp [name]");    
                     }
-                }
+                }**/
             }
                 
             return true;

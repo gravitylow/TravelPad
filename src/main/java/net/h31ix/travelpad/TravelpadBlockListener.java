@@ -32,12 +32,14 @@ public class TravelpadBlockListener extends BlockListener {
                 boolean perm = plugin.hasPermission(player, "create");
                 if (perm == true)
                 {
-                if (plugin.searchPads(player) != true)
+                if (plugin.checkPad("SELECT * FROM TravelPads WHERE player='"+player.getName()+"'") != true)
                 {
-                plugin.createPad(player, x, y, z);
+                plugin.addPad("INSERT INTO TravelPads (id, player, x, y, z, name, world) VALUES ('0', '"+player.getName()+"', '"+x+"', '"+y+"', '"+z+"','NULL', '"+player.getWorld().getName()+"')");
+                        
+                //plugin.createPad(player, x, y, z);
                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
                 public void run() {
-                    plugin.checkNamed(player,x,y,z);
+                    plugin.checkNamed(player);
                     }
                 },      600L);
                 block.getRelative(BlockFace.EAST).setType(Material.STEP);
@@ -66,7 +68,7 @@ public class TravelpadBlockListener extends BlockListener {
                 }
             }
         }
-        else
+        /**else
         {
             String name = plugin.searchPlayerPortal(x, (y-1), z); 
             if (name!= null)
@@ -83,10 +85,10 @@ public class TravelpadBlockListener extends BlockListener {
                 player.sendMessage(ChatColor.AQUA + "You cannot place blocks on a travelpad!");
             }
         }
-        }
+        }**/
     }
     
-    @Override
+    /**@Override
     public void onBlockBreak (BlockBreakEvent event) {
            Player player = event.getPlayer();
            Location location = event.getBlock().getLocation(); 
@@ -111,6 +113,6 @@ public class TravelpadBlockListener extends BlockListener {
            }
                }
         }
-    }
+    }**/
 }
 

@@ -1,6 +1,14 @@
 package net.h31ix.travelpad;
 
 import java.io.File;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -15,6 +23,15 @@ public class Travelpad extends JavaPlugin {
     private Configuration config;
     private boolean named;
     private File configFile;
+    private String host;
+    private String user;
+    private String pass;
+    private String port;
+    private String database;
+    private String urlfinal;
+    private ResultSet rs = null;
+    private Statement stmt;
+    Connection conn;
 
     public void onDisable() {
         System.out.println(this + " is now disabled!");
@@ -31,6 +48,78 @@ public class Travelpad extends JavaPlugin {
     PluginManager pluginManager = getServer().getPluginManager();
     pluginManager.registerEvent(org.bukkit.event.Event.Type.BLOCK_PLACE, blockListener, org.bukkit.event.Event.Priority.Low, this);
     pluginManager.registerEvent(org.bukkit.event.Event.Type.BLOCK_BREAK, blockListener, org.bukkit.event.Event.Priority.Low, this);
+        config.load();
+        host = config.getString("MySQLSettings.Hostname");
+        user = config.getString("MySQLSettings.Username");
+        pass = config.getString("MySQLSettings.Password");
+        port = config.getString("MySQLSettings.Port");
+        database = config.getString("MySQLSettings.Database");
+        urlfinal = "jdbc:mysql://" + host + ":" + port + "/" + database;
+        try {
+            conn = DriverManager.getConnection(urlfinal, user, pass);
+            System.out.println("[TravelPad] MySQL Connection Made!");
+        } catch (SQLException ex) {
+            Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("[TravelPad] MySQL Connection FAILED.");
+            pluginManager.disablePlugin(this);
+        }
+    }
+    
+    public boolean hasPortal(Player player)
+    {
+        String playername = null;
+           try {
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT * FROM TravelPads WHERE player='"+player.getName()+"'");
+            while (rs.next())
+            {
+            playername = rs.getString("player");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
+        }
+           if (playername == null)
+           {
+               return false;
+           }
+           else
+           {
+               return true;
+           }
+    }    
+    
+    public void addPad(String query)
+    {
+        try {
+            PreparedStatement sampleQueryStatement = conn.prepareStatement(query);
+            sampleQueryStatement.executeUpdate();
+            sampleQueryStatement.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public boolean checkPad(String query)
+    {
+        String playername = null;
+       try {
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery(query);
+            while (rs.next())
+            {
+            playername = rs.getString("player");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
+        }
+       if (playername != null)
+       {
+           return true;
+       }
+       else
+       {
+           return false;
+       }
     }
     
     public void makeConfig() {
@@ -38,13 +127,18 @@ public class Travelpad extends JavaPlugin {
         //Create a new blank config file
         configFile.createNewFile();
         } catch(Exception a) {
-            System.out.println("[TravelPad] Generated a new config file");
+            System.out.println("[TravelPad] Error generating a new config file!");
         }
     config = getConfiguration(); 
     //Set all the config defaults, if they are not already set.
     if (configFile.length()==0) {
         config.setHeader("#TravelPad configuration file");
         config.setProperty("Take ender pearl on tp", "true");
+        config.setProperty("MySQLSettings.Username", "myusername");
+        config.setProperty("MySQLSettings.Password", "mypassword");
+        config.setProperty("MySQLSettings.Database", "bans");
+        config.setProperty("MySQLSettings.Hostname", "localhost");
+        config.setProperty("MySQLSettings.Port", "3306");        
         config.save(); 		
 	}
     }
@@ -62,79 +156,47 @@ public class Travelpad extends JavaPlugin {
         }
     }
     
-    public int searchNameX(String name)
+    public boolean isNamed(Player player)
     {
-        int x = 0;
-        String xstring = config.getString("Names."+name+".x");
-        if (xstring != null)
-        {
-        x = Integer.parseInt(config.getString("Names."+name+".x"));    
+        String name = null;
+        String safenick = player.getName();
+        try {
+                stmt = conn.createStatement();
+                rs = stmt.executeQuery("SELECT * FROM TravelPads WHERE player='"+safenick+"'");
+                
+                while (rs.next())
+                {
+                name = rs.getString("player");
+                }
+        } catch (SQLException ex) {
+            Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return x;
+           if (name == null)
+           {
+               return false;
+           }
+           else
+           {
+               return true;
+           }    
     }
     
-    public int searchNameY(String name)
-    {
-        int y = 0;
-        String ystring = config.getString("Names."+name+".y");
-        if (ystring != null)
-        {
-        y = Integer.parseInt(config.getString("Names."+name+".y"));    
-        }
-        return y;
-    }
-    
-    public int searchNameZ(String name)
-    {
-        int z = 0;
-        String zstring = config.getString("Names."+name+".z");
-        if (zstring != null)
-        {
-        z = Integer.parseInt(config.getString("Names."+name+".z"));    
-        }
-        return z;
-    }  
-    
-    public String searchCoords(int x, int y, int z) {
-       String name = config.getString("Coordinates."+x+"."+(y-1)+"."+z+".name");
-       return name;
-    }  
-    
-    public String searchPlayerPortal(int x, int y, int z) {
-       String name = config.getString("Coordinates."+x+"."+(y-1)+"."+z+".player");
-       return name;
-    }    
-    
-    public void checkNamed(Player player, int x, int y, int z)
+    public void checkNamed(Player player)
     {
         if (named != true)
-        {  
-        removePortal(player,x,y,z);
-        player.sendMessage(ChatColor.AQUA + "Your TravelPad has expired because it was not named.");
+        {
+            try {
+            PreparedStatement sampleQueryStatement = conn.prepareStatement("DELETE FROM TravelPads WHERE player='"+player.getName()+"'");
+            sampleQueryStatement.executeUpdate();
+            sampleQueryStatement.close();
+            player.sendMessage("removed");
+            } catch (SQLException ex) {
+            Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         named = false;
     }
     
-    public void removePortal(Player player, int x, int y, int z)
-    {
-        String safenick = player.getName();
-        String name = config.getString("Coordinates."+x+"."+(y-1)+"."+z+".name");
-        if (name != null)
-        {
-        World world = getServer().getWorld(config.getString("Names."+name+".world"));
-        config.removeProperty("Names."+name);
-        Location location = new Location(world,x,y,z);
-        location.getBlock().getRelative(BlockFace.EAST).setType(Material.AIR);
-        location.getBlock().getRelative(BlockFace.NORTH).setType(Material.AIR);
-        location.getBlock().getRelative(BlockFace.SOUTH).setType(Material.AIR);
-        location.getBlock().getRelative(BlockFace.WEST).setType(Material.AIR);
-        }
-        config.removeProperty("Player's pads."+safenick);
-        config.removeProperty("Coordinates."+x+"."+(y-1)+"."+z+".player");
-        config.removeProperty("Coordinates."+x+"."+(y-1)+"."+z);
-        config.removeProperty("Coordinates."+x+"."+(y-1));
-        config.removeProperty("Coordinates."+x);   
-    }
     
     public boolean hasPermission(Player player, String permission)
     {
@@ -152,19 +214,30 @@ public class Travelpad extends JavaPlugin {
         }
     }
     
-    public boolean storeName(Player player, int x, int y, int z, String name, World world)
+    public boolean storeName(Player player, String name)
     {
-        String safenick = player.getName();
-        String register = config.getString("Coordinates."+x+"."+(y-1)+"."+z+".player");
-        String worldname = world.getName();
-        if (register.equalsIgnoreCase(safenick))
+       String safenick = player.getName();
+       String playername = null;
+       try {
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT * FROM TravelPads WHERE player='"+safenick+"'");
+            while (rs.next())
+            {
+            playername = rs.getString("player");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        if (playername.equalsIgnoreCase(player.getName()))
         {
-            config.setProperty("Names."+name+".x", x);
-            config.setProperty("Names."+name+".y", y);
-            config.setProperty("Names."+name+".z", z);
-            config.setProperty("Names."+name+".world", worldname);
-            config.setProperty("Coordinates."+x+"."+(y-1)+"."+z+".name", name);
-            config.save();
+                    try {
+            PreparedStatement sampleQueryStatement = conn.prepareStatement("UPDATE TravelPads SET name='"+name+"' WHERE player='"+safenick+"'");
+                    
+            sampleQueryStatement.executeUpdate();
+            sampleQueryStatement.close();
+            } catch (SQLException ex) {
+            Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
+            }
             named = true;
             return true; 
         }
@@ -178,61 +251,5 @@ public class Travelpad extends JavaPlugin {
         World world = getServer().getWorld(config.getString("Names."+name+".world"));
         return world;
     }
-    public void createPad(Player player, int x, int y, int z) {
-        String safenick = player.getName();
-        config.setProperty("Player's pads."+safenick+".location.x", x);
-        config.setProperty("Player's pads."+safenick+".location.y", y);
-        config.setProperty("Player's pads."+safenick+".location.z", z);
-        config.setProperty("Coordinates."+x+"."+(y-1)+"."+z+".player", safenick);
-        config.save();
-    }
-    
-    public int searchPadX(Player player)
-    {
-        String safenick = player.getName();
-        int x = 0;
-        String xstring = config.getString("Player's pads."+safenick+".location.x");
-        if (xstring != null)
-        {
-        x = Integer.parseInt(xstring);    
-        }
-        return x;    
-    }
-    
-    public int searchPadY(Player player)
-    {
-        String safenick = player.getName();
-        int x = 0;
-        String xstring = config.getString("Player's pads."+safenick+".location.y");
-        if (xstring != null)
-        {
-        x = Integer.parseInt(xstring);    
-        }
-        return x;    
-    }  
-    
-    public int searchPadZ(Player player)
-    {
-        String safenick = player.getName();
-        int x = 0;
-        String xstring = config.getString("Player's pads."+safenick+".location.z");
-        if (xstring != null)
-        {
-        x = Integer.parseInt(xstring);    
-        }
-        return x;    
-    }    
-    
-    public boolean searchPads(Player player) {
-       String safenick = player.getName();
-       String check = config.getString("Player's pads."+safenick);
-       if (check == null)
-       {
-           return false;
-       }
-       else
-       {
-           return true;
-       }
-    }
+      
 }
