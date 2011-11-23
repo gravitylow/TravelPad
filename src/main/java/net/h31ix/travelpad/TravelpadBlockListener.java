@@ -68,27 +68,18 @@ public class TravelpadBlockListener extends BlockListener {
                 }
             }
         }
-        /**else
+        else
         {
-            String name = plugin.searchPlayerPortal(x, (y-1), z); 
+            String name = plugin.searchPortalByCoords(x, y, z);
             if (name!= null)
                 {
                     event.setCancelled(true);
                     player.sendMessage(ChatColor.AQUA + "You cannot place blocks on a travelpad!");
                 }
-         else
-         {
-            name = plugin.searchPlayerPortal(x, (y-2), z);   
-            if (name!= null)
-            {
-                event.setCancelled(true);
-                player.sendMessage(ChatColor.AQUA + "You cannot place blocks on a travelpad!");
-            }
         }
-        }**/
     }
     
-    /**@Override
+    @Override
     public void onBlockBreak (BlockBreakEvent event) {
            Player player = event.getPlayer();
            Location location = event.getBlock().getLocation(); 
@@ -97,22 +88,34 @@ public class TravelpadBlockListener extends BlockListener {
            final int z = (int)location.getZ();  
         if(event.getBlock().getType() == Material.OBSIDIAN)
         {
-           String name = plugin.searchPlayerPortal(x, y, z);
+           String name = plugin.searchPortalByCoords(x, y, z);
+           String owner = plugin.getOwner(name);
            if (name != null)
            {
            String safenick = player.getName();
-           if (!name.equalsIgnoreCase(safenick))
+           if (!owner.equalsIgnoreCase(safenick))
            {
                event.setCancelled(true);
                player.sendMessage(ChatColor.AQUA + "That portal is not registered to you!");
                }
            else
            {
-               plugin.removePortal(player,x,y,z);
+               plugin.removePortal(name);
                player.sendMessage(ChatColor.AQUA + "TravelPad unregistered.");
            }
                }
         }
-    }**/
+        else if(event.getBlock().getType() == Material.STEP)
+        {
+        String name = plugin.searchPortalByCoords(x, y, z);    
+        if (name != null)
+        {
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.AQUA + "You cannot break portals without unregistering them first.");
+            player.sendMessage(ChatColor.AQUA + "To unregister a portal, stand on it and type /travelpad delete");
+            player.sendMessage(ChatColor.AQUA + "Or simply break the obsidian center.");
+        }
+        }
+    }
 }
 

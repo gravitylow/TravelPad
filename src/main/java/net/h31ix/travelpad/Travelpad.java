@@ -13,6 +13,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
@@ -57,7 +58,7 @@ public class Travelpad extends JavaPlugin {
         urlfinal = "jdbc:mysql://" + host + ":" + port + "/" + database;
         try {
             conn = DriverManager.getConnection(urlfinal, user, pass);
-            System.out.println("[TravelPad] MySQL Connection Made!");
+            System.out.println("[TravelPad] MySQL Connection Established!");
         } catch (SQLException ex) {
             Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
             System.out.println("[TravelPad] MySQL Connection FAILED.");
@@ -156,6 +157,90 @@ public class Travelpad extends JavaPlugin {
         }
     }
     
+    public int getCoordsX (String name)
+    {
+        int x = 0;
+        try {
+                stmt = conn.createStatement();
+                rs = stmt.executeQuery("SELECT * FROM TravelPads WHERE name='"+name+"'");
+                
+                while (rs.next())
+                {
+                x = rs.getInt("x");
+                }
+        } catch (SQLException ex) {
+            Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return x;
+    }
+    
+    public int getCoordsY (String name)
+    {
+        int y = 0;
+        try {
+                stmt = conn.createStatement();
+                rs = stmt.executeQuery("SELECT * FROM TravelPads WHERE name='"+name+"'");
+                
+                while (rs.next())
+                {
+                y = rs.getInt("y");
+                }
+        } catch (SQLException ex) {
+            Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return y;
+    }
+    
+    public int getCoordsZ (String name)
+    {
+        int z = 0;
+        try {
+                stmt = conn.createStatement();
+                rs = stmt.executeQuery("SELECT * FROM TravelPads WHERE name='"+name+"'");
+                
+                while (rs.next())
+                {
+                z = rs.getInt("z");
+                }
+        } catch (SQLException ex) {
+            Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return z;
+    } 
+    
+    public String searchPortalByCoords(int x, int y, int z)
+    {
+        String name = null;
+         try {
+                stmt = conn.createStatement();
+                rs = stmt.executeQuery("SELECT * FROM TravelPads WHERE x BETWEEN '"+(x-2)+"' AND '"+(x+2)+"' AND y BETWEEN '"+(y-2)+"' AND '"+(y+2)+"' AND z BETWEEN '"+(z-2)+"' AND '"+(z+2)+"'");                         
+                while (rs.next())
+                {
+                name = rs.getString("name");
+                }
+        } catch (SQLException ex) {
+            Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return name;
+    }
+    
+        public String getOwner(String name)
+    {
+        String player = null;
+         try {
+                stmt = conn.createStatement();
+                rs = stmt.executeQuery("SELECT * FROM TravelPads WHERE name='"+name+"'");                         
+                while (rs.next())
+                {
+                player = rs.getString("player");
+                }
+        } catch (SQLException ex) {
+            Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return player;
+    }
+       
+    
     public boolean isNamed(Player player)
     {
         String name = null;
@@ -185,16 +270,75 @@ public class Travelpad extends JavaPlugin {
     {
         if (named != true)
         {
+        int x = 0;
+        int y = 0;
+        int z = 0;
+        World world = null;
+                try {
+                stmt = conn.createStatement();
+                rs = stmt.executeQuery("SELECT * FROM TravelPads WHERE player='"+player.getName()+"'");               
+                while (rs.next())
+                {
+                x = rs.getInt("x");
+                y = rs.getInt("y");
+                z = rs.getInt("z");
+                world = getServer().getWorld(rs.getString("world"));
+                }
+        } catch (SQLException ex) {
+            Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
+        }
+            Location loc = new Location(world,x,y,z);
+            Block block = loc.getBlock();
+            block.setType(Material.AIR);
+            block.getRelative(BlockFace.EAST).setType(Material.AIR);
+            block.getRelative(BlockFace.SOUTH).setType(Material.AIR);
+            block.getRelative(BlockFace.NORTH).setType(Material.AIR);
+            block.getRelative(BlockFace.WEST).setType(Material.AIR);
+                
             try {
             PreparedStatement sampleQueryStatement = conn.prepareStatement("DELETE FROM TravelPads WHERE player='"+player.getName()+"'");
             sampleQueryStatement.executeUpdate();
             sampleQueryStatement.close();
-            player.sendMessage("removed");
+            player.sendMessage(ChatColor.AQUA + "Your portal has expired because you did not name it!");
             } catch (SQLException ex) {
             Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         named = false;
+    }
+    
+    public void removePortal(String name)
+    {
+        int x = 0;
+        int y = 0;
+        int z = 0;
+        World world = null;
+                try {
+                stmt = conn.createStatement();
+                rs = stmt.executeQuery("SELECT * FROM TravelPads WHERE name='"+name+"'");               
+                while (rs.next())
+                {
+                x = rs.getInt("x");
+                y = rs.getInt("y");
+                z = rs.getInt("z");
+                world = getServer().getWorld(rs.getString("world"));
+                }
+        } catch (SQLException ex) {
+            Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
+        }
+            try {
+            PreparedStatement sampleQueryStatement = conn.prepareStatement("DELETE FROM TravelPads WHERE name='"+name+"'");
+            sampleQueryStatement.executeUpdate();
+            sampleQueryStatement.close();
+            Location loc = new Location(world,x,y,z);
+            Block block = loc.getBlock();
+            block.getRelative(BlockFace.EAST).setType(Material.AIR);
+            block.getRelative(BlockFace.SOUTH).setType(Material.AIR);
+            block.getRelative(BlockFace.NORTH).setType(Material.AIR);
+            block.getRelative(BlockFace.WEST).setType(Material.AIR);
+            } catch (SQLException ex) {
+            Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
+            }        
     }
     
     
@@ -248,7 +392,22 @@ public class Travelpad extends JavaPlugin {
     }
     
     public World getWorld(String name) {
-        World world = getServer().getWorld(config.getString("Names."+name+".world"));
+        String worldname = null;
+        World world = null;
+        try {
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT * FROM TravelPads WHERE name='"+name+"'");
+            while (rs.next())
+            {
+            worldname = rs.getString("world");
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        if (worldname != null)
+        {
+        world = getServer().getWorld(worldname);
+        }
         return world;
     }
       

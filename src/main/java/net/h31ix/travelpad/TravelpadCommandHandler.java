@@ -34,15 +34,15 @@ public class TravelpadCommandHandler implements CommandExecutor {
                    player.sendMessage(ChatColor.AQUA + "/travelpad delete");
                    player.sendMessage(ChatColor.BLUE + "Deletes the travelpad you are standing on, if its yours.");                     
                 }
-                /**else if (args[0].equalsIgnoreCase("identify")) {
+                else if (args[0].equalsIgnoreCase("identify")) {
                     boolean perm = plugin.hasPermission(player, "identify");
                     if (perm == true)
                     {
                     Location location = player.getLocation();
                     int x = (int)location.getX();
-                    int y = (int)location.getY()-1;
+                    int y = (int)location.getY();
                     int z = (int)location.getZ();
-                    String name = plugin.searchCoords(x,y,z);
+                    String name = plugin.searchPortalByCoords(x, y, z);
                     if (name!= null) {
                         player.sendMessage(ChatColor.AQUA + "You are standing on the portal named "+name);
                     }
@@ -54,7 +54,7 @@ public class TravelpadCommandHandler implements CommandExecutor {
                     {
                         player.sendMessage(ChatColor.RED + "You dont have that permission.");
                     }
-                }**/
+                }
                 else if (args[0].equalsIgnoreCase("name")) { 
                     if (args.length == 2)
                     {
@@ -86,18 +86,21 @@ public class TravelpadCommandHandler implements CommandExecutor {
                         player.sendMessage(ChatColor.AQUA + "Usage: /travelpad Name [name]");
                     }
             }
-                /**else if (args[0].equalsIgnoreCase("delete")) {
+                else if (args[0].equalsIgnoreCase("delete")) {
                     if (args.length == 1)
                             {
                                 Location location = player.getLocation(); 
                                 int x = (int)location.getX();
-                                int y = (int)location.getY()-1;
+                                int y = (int)location.getY();
                                 int z = (int)location.getZ();
-                                String name = plugin.searchPlayerPortal(x, y, z);
-                                if (name != null)
-                               {
+                                String onportal = plugin.searchPortalByCoords(x, y, z);
+                                int xx = plugin.getCoordsX(onportal);
+                                int yy = plugin.getCoordsY(onportal);
+                                int zz = plugin.getCoordsZ(onportal);
+                                if (onportal != null)
+                                {
                                String safenick = player.getName();
-                               if (!name.equalsIgnoreCase(safenick))
+                               if (!(plugin.getOwner(onportal)).equalsIgnoreCase(safenick))
                                {
                                    player.sendMessage(ChatColor.RED + "That portal is not registered to you!");
                                }
@@ -106,10 +109,8 @@ public class TravelpadCommandHandler implements CommandExecutor {
                                    boolean perm = plugin.hasPermission(player, "delete");
                                    if (perm == true)
                                    {
-                                   String tpname = plugin.searchCoords(x, y, z);
-                                   System.out.println(tpname);
-                                   plugin.removePortal(player,x,y,z);
-                                   Location newloc = new Location(player.getWorld(),x,y,z);
+                                   plugin.removePortal(onportal);
+                                   Location newloc = new Location(player.getWorld(),xx,yy,zz);
                                    newloc.getBlock().setType(Material.AIR);
                                    player.sendMessage(ChatColor.AQUA + "TravelPad unregistered.");
                                    }
@@ -123,16 +124,16 @@ public class TravelpadCommandHandler implements CommandExecutor {
                     else if (args.length == 2)
                     {
                     String port = args[1];
-                    int xx = plugin.searchNameX(port);
-                    int yy = plugin.searchNameY(port);
-                    int zz = plugin.searchNameZ(port);
+                    int xx = plugin.getCoordsX(port);
+                    int yy = plugin.getCoordsY(port);
+                    int zz = plugin.getCoordsZ(port);
                     boolean perm = plugin.hasPermission(player, "delete.all");
                     if (perm == true)
                     {
                     if (xx!=0 && yy!=0 && zz!=0)
                     {
                         Location newloc = new Location(plugin.getWorld(args[1]),xx,yy,zz);
-                        plugin.removePortal(player,xx,yy,zz);
+                        plugin.removePortal(port);
                         newloc.getBlock().setType(Material.AIR);
                         player.sendMessage(ChatColor.AQUA + "TravelPad unregistered.");
                     }
@@ -148,17 +149,20 @@ public class TravelpadCommandHandler implements CommandExecutor {
                     if (args.length == 2)
                     {
                     String to = args[1];
-                    int x = plugin.searchNameX(to);
-                    int y = plugin.searchNameY(to);
-                    int z = plugin.searchNameZ(to);
+                    int x = plugin.getCoordsX(to);
+                    int y = plugin.getCoordsY(to);
+                    int z = plugin.getCoordsZ(to);
+                    System.out.println(x);
+                    System.out.println(y);
+                    System.out.println(z);
                     if (x!=0 && y!=0 && z!=0)
                     {
                         Location plocation = player.getLocation(); 
                         int xx = (int)plocation.getX();
-                        int yy = (int)plocation.getY()-1;
+                        int yy = (int)plocation.getY();
                         int zz = (int)plocation.getZ();
-                        String name = plugin.searchPlayerPortal(xx, yy, zz);
-                        if (name != null)
+                        String onportal = plugin.searchPortalByCoords(xx, yy, zz);
+                        if (onportal != null)
                         {
                         Inventory inv = player.getInventory();
                         ItemStack item = new ItemStack(Material.ENDER_PEARL, 1);
@@ -166,16 +170,19 @@ public class TravelpadCommandHandler implements CommandExecutor {
                         {
                         boolean take = plugin.checkEnderSetting();
                         if (take == true)
-                        {
-                        inv.remove(item);
-                        }
+                            {
+                            inv.remove(item);
+                            }
                         World world = plugin.getWorld(to);
-                        Location location = new Location(world,x,(y+1),z);
-                        tpplayer.teleport(location);
-                        player.sendMessage(ChatColor.AQUA + "Woosh! You have arrived at "+to+".");
-                        if (take == true)
+                        if (world!=null)
                         {
-                        player.sendMessage(ChatColor.AQUA + "The price of your trip was 1 Enderman Pearl.");
+                            Location location = new Location(world,x,(y+1),z);
+                            tpplayer.teleport(location);
+                            player.sendMessage(ChatColor.AQUA + "Woosh! You have arrived at "+to+".");
+                            if (take == true)
+                            {
+                                player.sendMessage(ChatColor.AQUA + "The price of your trip was 1 Enderman Pearl.");
+                            }
                         }
                         }
                         else 
@@ -197,7 +204,7 @@ public class TravelpadCommandHandler implements CommandExecutor {
                     {
                     player.sendMessage(ChatColor.AQUA + "Usage: /travelpad tp [name]");    
                     }
-                }**/
+                }
             }
                 
             return true;
