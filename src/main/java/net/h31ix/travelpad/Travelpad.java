@@ -2,6 +2,7 @@ package net.h31ix.travelpad;
 
 import java.io.File;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -30,6 +31,7 @@ public class Travelpad extends JavaPlugin {
     private String port;
     private String database;
     private String urlfinal;
+    private String table;
     private ResultSet rs = null;
     private Statement stmt;
     Connection conn;
@@ -55,10 +57,17 @@ public class Travelpad extends JavaPlugin {
         pass = config.getString("MySQLSettings.Password");
         port = config.getString("MySQLSettings.Port");
         database = config.getString("MySQLSettings.Database");
+        table = config.getString("MySQLSettings.Table");
         urlfinal = "jdbc:mysql://" + host + ":" + port + "/" + database;
         try {
             conn = DriverManager.getConnection(urlfinal, user, pass);
             System.out.println("[TravelPad] MySQL Connection Established!");
+            final DatabaseMetaData dbm = conn.getMetaData();
+            if (!dbm.getTables(null, null, config.getString("MySQLSettings.Table"), null).next()) {
+                stmt = conn.createStatement();
+                System.out.println("[TravelPad] Creating a table now..");
+                stmt.execute("CREATE TABLE  `"+config.getString("MySQLSettings.Table")+"` (`id` INT( 10 ) NOT NULL AUTO_INCREMENT ,`player` VARCHAR( 32 ) NOT NULL ,`x` VARCHAR( 5 ) NOT NULL ,`y` VARCHAR( 5 ) NOT NULL ,`z` VARCHAR( 5 ) NOT NULL ,`name` VARCHAR( 32 ) NOT NULL ,`world` VARCHAR( 32 ) NOT NULL ,PRIMARY KEY (  `id` ));");
+            }
         } catch (SQLException ex) {
             Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
             System.out.println("[TravelPad] MySQL Connection FAILED.");
@@ -66,12 +75,17 @@ public class Travelpad extends JavaPlugin {
         }
     }
     
+    public String dbName()
+    {
+        return table;
+    }
+    
     public boolean hasPortal(Player player)
     {
         String playername = null;
            try {
             stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT * FROM TravelPads WHERE player='"+player.getName()+"'");
+            rs = stmt.executeQuery("SELECT * FROM "+table+" WHERE player='"+player.getName()+"'");
             while (rs.next())
             {
             playername = rs.getString("player");
@@ -137,9 +151,10 @@ public class Travelpad extends JavaPlugin {
         config.setProperty("Take ender pearl on tp", "true");
         config.setProperty("MySQLSettings.Username", "myusername");
         config.setProperty("MySQLSettings.Password", "mypassword");
-        config.setProperty("MySQLSettings.Database", "bans");
+        config.setProperty("MySQLSettings.Database", "travelpads");
         config.setProperty("MySQLSettings.Hostname", "localhost");
-        config.setProperty("MySQLSettings.Port", "3306");        
+        config.setProperty("MySQLSettings.Port", "3306");  
+        config.setProperty("MySQLSettings.Table", "TravelPads");
         config.save(); 		
 	}
     }
@@ -162,7 +177,7 @@ public class Travelpad extends JavaPlugin {
         int x = 0;
         try {
                 stmt = conn.createStatement();
-                rs = stmt.executeQuery("SELECT * FROM TravelPads WHERE name='"+name+"'");
+                rs = stmt.executeQuery("SELECT * FROM "+table+" WHERE name='"+name+"'");
                 
                 while (rs.next())
                 {
@@ -179,7 +194,7 @@ public class Travelpad extends JavaPlugin {
         int y = 0;
         try {
                 stmt = conn.createStatement();
-                rs = stmt.executeQuery("SELECT * FROM TravelPads WHERE name='"+name+"'");
+                rs = stmt.executeQuery("SELECT * FROM "+table+" WHERE name='"+name+"'");
                 
                 while (rs.next())
                 {
@@ -196,7 +211,7 @@ public class Travelpad extends JavaPlugin {
         int z = 0;
         try {
                 stmt = conn.createStatement();
-                rs = stmt.executeQuery("SELECT * FROM TravelPads WHERE name='"+name+"'");
+                rs = stmt.executeQuery("SELECT * FROM "+table+" WHERE name='"+name+"'");
                 
                 while (rs.next())
                 {
@@ -213,7 +228,7 @@ public class Travelpad extends JavaPlugin {
         String name = null;
          try {
                 stmt = conn.createStatement();
-                rs = stmt.executeQuery("SELECT * FROM TravelPads WHERE x BETWEEN '"+(x-2)+"' AND '"+(x+2)+"' AND y BETWEEN '"+(y-2)+"' AND '"+(y+2)+"' AND z BETWEEN '"+(z-2)+"' AND '"+(z+2)+"'");                         
+                rs = stmt.executeQuery("SELECT * FROM "+table+" WHERE x BETWEEN '"+(x-2)+"' AND '"+(x+2)+"' AND y BETWEEN '"+(y-2)+"' AND '"+(y+2)+"' AND z BETWEEN '"+(z-2)+"' AND '"+(z+2)+"'");                         
                 while (rs.next())
                 {
                 name = rs.getString("name");
@@ -229,7 +244,7 @@ public class Travelpad extends JavaPlugin {
         String player = null;
          try {
                 stmt = conn.createStatement();
-                rs = stmt.executeQuery("SELECT * FROM TravelPads WHERE name='"+name+"'");                         
+                rs = stmt.executeQuery("SELECT * FROM "+table+" WHERE name='"+name+"'");                         
                 while (rs.next())
                 {
                 player = rs.getString("player");
@@ -247,7 +262,7 @@ public class Travelpad extends JavaPlugin {
         String safenick = player.getName();
         try {
                 stmt = conn.createStatement();
-                rs = stmt.executeQuery("SELECT * FROM TravelPads WHERE player='"+safenick+"'");
+                rs = stmt.executeQuery("SELECT * FROM "+table+" WHERE player='"+safenick+"'");
                 
                 while (rs.next())
                 {
@@ -276,7 +291,7 @@ public class Travelpad extends JavaPlugin {
         World world = null;
                 try {
                 stmt = conn.createStatement();
-                rs = stmt.executeQuery("SELECT * FROM TravelPads WHERE player='"+player.getName()+"'");               
+                rs = stmt.executeQuery("SELECT * FROM "+table+" WHERE player='"+player.getName()+"'");               
                 while (rs.next())
                 {
                 x = rs.getInt("x");
@@ -296,7 +311,7 @@ public class Travelpad extends JavaPlugin {
             block.getRelative(BlockFace.WEST).setType(Material.AIR);
                 
             try {
-            PreparedStatement sampleQueryStatement = conn.prepareStatement("DELETE FROM TravelPads WHERE player='"+player.getName()+"'");
+            PreparedStatement sampleQueryStatement = conn.prepareStatement("DELETE FROM "+table+" WHERE player='"+player.getName()+"'");
             sampleQueryStatement.executeUpdate();
             sampleQueryStatement.close();
             player.sendMessage(ChatColor.AQUA + "Your portal has expired because you did not name it!");
@@ -315,7 +330,7 @@ public class Travelpad extends JavaPlugin {
         World world = null;
                 try {
                 stmt = conn.createStatement();
-                rs = stmt.executeQuery("SELECT * FROM TravelPads WHERE name='"+name+"'");               
+                rs = stmt.executeQuery("SELECT * FROM "+table+" WHERE name='"+name+"'");               
                 while (rs.next())
                 {
                 x = rs.getInt("x");
@@ -327,7 +342,7 @@ public class Travelpad extends JavaPlugin {
             Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
         }
             try {
-            PreparedStatement sampleQueryStatement = conn.prepareStatement("DELETE FROM TravelPads WHERE name='"+name+"'");
+            PreparedStatement sampleQueryStatement = conn.prepareStatement("DELETE FROM "+table+" WHERE name='"+name+"'");
             sampleQueryStatement.executeUpdate();
             sampleQueryStatement.close();
             Location loc = new Location(world,x,y,z);
@@ -364,7 +379,7 @@ public class Travelpad extends JavaPlugin {
        String playername = null;
        try {
             stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT * FROM TravelPads WHERE player='"+safenick+"'");
+            rs = stmt.executeQuery("SELECT * FROM "+table+" WHERE player='"+safenick+"'");
             while (rs.next())
             {
             playername = rs.getString("player");
@@ -375,7 +390,7 @@ public class Travelpad extends JavaPlugin {
         if (playername.equalsIgnoreCase(player.getName()))
         {
                     try {
-            PreparedStatement sampleQueryStatement = conn.prepareStatement("UPDATE TravelPads SET name='"+name+"' WHERE player='"+safenick+"'");
+            PreparedStatement sampleQueryStatement = conn.prepareStatement("UPDATE "+table+" SET name='"+name+"' WHERE player='"+safenick+"'");
                     
             sampleQueryStatement.executeUpdate();
             sampleQueryStatement.close();
@@ -396,7 +411,7 @@ public class Travelpad extends JavaPlugin {
         World world = null;
         try {
             stmt = conn.createStatement();
-            rs = stmt.executeQuery("SELECT * FROM TravelPads WHERE name='"+name+"'");
+            rs = stmt.executeQuery("SELECT * FROM "+table+" WHERE name='"+name+"'");
             while (rs.next())
             {
             worldname = rs.getString("world");

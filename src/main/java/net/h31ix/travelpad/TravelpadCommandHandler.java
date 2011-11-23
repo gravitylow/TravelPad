@@ -152,9 +152,6 @@ public class TravelpadCommandHandler implements CommandExecutor {
                     int x = plugin.getCoordsX(to);
                     int y = plugin.getCoordsY(to);
                     int z = plugin.getCoordsZ(to);
-                    System.out.println(x);
-                    System.out.println(y);
-                    System.out.println(z);
                     if (x!=0 && y!=0 && z!=0)
                     {
                         Location plocation = player.getLocation(); 

@@ -32,9 +32,9 @@ public class TravelpadBlockListener extends BlockListener {
                 boolean perm = plugin.hasPermission(player, "create");
                 if (perm == true)
                 {
-                if (plugin.checkPad("SELECT * FROM TravelPads WHERE player='"+player.getName()+"'") != true)
+                if (plugin.checkPad("SELECT * FROM "+plugin.dbName()+" WHERE player='"+player.getName()+"'") != true)
                 {
-                plugin.addPad("INSERT INTO TravelPads (id, player, x, y, z, name, world) VALUES ('0', '"+player.getName()+"', '"+x+"', '"+y+"', '"+z+"','NULL', '"+player.getWorld().getName()+"')");
+                plugin.addPad("INSERT INTO "+plugin.dbName()+" (id, player, x, y, z, name, world) VALUES ('0', '"+player.getName()+"', '"+x+"', '"+y+"', '"+z+"','NULL', '"+player.getWorld().getName()+"')");
                         
                 //plugin.createPad(player, x, y, z);
                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
