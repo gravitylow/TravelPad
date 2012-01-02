@@ -17,6 +17,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.config.Configuration;
@@ -154,6 +155,7 @@ public class Travelpad extends JavaPlugin {
     //Set all the config defaults, if they are not already set.
     if (configFile.length()==0) {
         config.setHeader("#TravelPad configuration file");
+        config.setProperty("Require ender pearl on tp", "true");        
         config.setProperty("Take ender pearl on tp", "true");
         config.setProperty("MySQLSettings.Username", "myusername");
         config.setProperty("MySQLSettings.Password", "mypassword");
@@ -165,7 +167,7 @@ public class Travelpad extends JavaPlugin {
 	}
     }
     
-    public boolean checkEnderSetting()
+    public boolean checkTakeSetting()
     {
         String result = config.getString("Take ender pearl on tp");
         if (result.equalsIgnoreCase("true"))
@@ -177,6 +179,19 @@ public class Travelpad extends JavaPlugin {
             return false;
         }
     }
+    
+    public boolean checkEnderSetting()
+    {
+        String result = config.getString("Require ender pearl on tp");
+        if (result.equalsIgnoreCase("true"))
+                {
+                    return true;
+                }
+        else
+        {
+            return false;
+        }
+    }    
     
     public int getCoordsX (String name)
     {
@@ -320,7 +335,11 @@ public class Travelpad extends JavaPlugin {
             PreparedStatement sampleQueryStatement = conn.prepareStatement("DELETE FROM "+table+" WHERE player='"+player.getName()+"'");
             sampleQueryStatement.executeUpdate();
             sampleQueryStatement.close();
-            player.sendMessage(ChatColor.AQUA + "Your portal has expired because you did not name it!");
+            player.sendMessage(ChatColor.AQUA + "Your TravelPad has expired because you did not name it!");
+            ItemStack i = new ItemStack(Material.OBSIDIAN, 1);
+            ItemStack e = new ItemStack(Material.BRICK, 4);
+            world.dropItemNaturally(loc, i);
+            world.dropItemNaturally(loc, e);          
             } catch (SQLException ex) {
             Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -357,6 +376,10 @@ public class Travelpad extends JavaPlugin {
             block.getRelative(BlockFace.SOUTH).setType(Material.AIR);
             block.getRelative(BlockFace.NORTH).setType(Material.AIR);
             block.getRelative(BlockFace.WEST).setType(Material.AIR);
+            ItemStack i = new ItemStack(Material.OBSIDIAN, 1);
+            ItemStack e = new ItemStack(Material.BRICK, 4);
+            world.dropItemNaturally(loc, i);
+            world.dropItemNaturally(loc, e);             
             } catch (SQLException ex) {
             Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
             }        

@@ -111,7 +111,7 @@ public class TravelpadCommandHandler implements CommandExecutor {
                                    {
                                    plugin.removePortal(onportal);
                                    Location newloc = new Location(player.getWorld(),xx,yy,zz);
-                                   newloc.getBlock().setType(Material.AIR);
+                                   newloc.getBlock().setType(Material.AIR);                                
                                    player.sendMessage(ChatColor.AQUA + "TravelPad unregistered.");
                                    }
                                    else
@@ -134,7 +134,7 @@ public class TravelpadCommandHandler implements CommandExecutor {
                     {
                         Location newloc = new Location(plugin.getWorld(args[1]),xx,yy,zz);
                         plugin.removePortal(port);
-                        newloc.getBlock().setType(Material.AIR);
+                        newloc.getBlock().setType(Material.AIR);                      
                         player.sendMessage(ChatColor.AQUA + "TravelPad unregistered.");
                     }
                     }
@@ -163,14 +163,16 @@ public class TravelpadCommandHandler implements CommandExecutor {
                         {
                         Inventory inv = player.getInventory();
                         ItemStack item = new ItemStack(Material.ENDER_PEARL, 1);
-                        if (inv.contains(item))
+                        World world = plugin.getWorld(to);
+                        if (plugin.checkEnderSetting() == true)
                         {
-                        boolean take = plugin.checkEnderSetting();
+                            if (inv.contains(item))
+                            {
+                        boolean take = plugin.checkTakeSetting();
                         if (take == true)
                             {
                             inv.remove(item);
                             }
-                        World world = plugin.getWorld(to);
                         if (world!=null)
                         {
                             Location location = new Location(world,x,(y+1),z);
@@ -186,6 +188,13 @@ public class TravelpadCommandHandler implements CommandExecutor {
                             {
                                 player.sendMessage(ChatColor.AQUA + "You must have 1 Enderman Pearl in your inventory to teleport!");
                             }                        
+                        }
+                        else
+                        {
+                           Location location = new Location(world,x,(y+1),z);
+                            tpplayer.teleport(location);
+                            player.sendMessage(ChatColor.AQUA + "Woosh! You have arrived at "+to+".");                            
+                        }
                         }
                         else
                         {
