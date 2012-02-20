@@ -1,0 +1,15 @@
+#Travelpad Configuration File
+Require ender pearl on tp: true
+Take ender pearl on tp: true
+Economy Charges:
+  Charge on creation: false
+  Refund on deletion: false
+  Creation Charge: 30.0
+  Deletion Return: 10.0
+MySQLSettings:
+  Username: username
+  Password: pass
+  Database: minecraft
+  Hostname: localhost
+  Port: 3306
+  Table: travelpad

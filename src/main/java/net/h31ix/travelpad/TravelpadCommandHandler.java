@@ -25,13 +25,13 @@ public class TravelpadCommandHandler implements CommandExecutor {
                 if (args.length < 1)
                 {
                    player.sendMessage(ChatColor.RED + "Commands:"); 
-                   player.sendMessage(ChatColor.AQUA + "/travelpad Identify");
+                   player.sendMessage(ChatColor.GREEN + "/travelpad Identify");
                    player.sendMessage(ChatColor.BLUE + "Identifies the current pad you are standing on.");
-                   player.sendMessage(ChatColor.AQUA + "/travelpad Name [name]");
+                   player.sendMessage(ChatColor.GREEN + "/travelpad Name [name]");
                    player.sendMessage(ChatColor.BLUE + "Names your created pad.");
-                   player.sendMessage(ChatColor.AQUA + "/travelpad tp [name]");
+                   player.sendMessage(ChatColor.GREEN + "/travelpad tp [name]");
                    player.sendMessage(ChatColor.BLUE + "Teleports your player to the specified travelpad."); 
-                   player.sendMessage(ChatColor.AQUA + "/travelpad delete");
+                   player.sendMessage(ChatColor.GREEN + "/travelpad delete");
                    player.sendMessage(ChatColor.BLUE + "Deletes the travelpad you are standing on, if its yours.");                     
                 }
                 else if (args[0].equalsIgnoreCase("identify")) {
@@ -44,10 +44,10 @@ public class TravelpadCommandHandler implements CommandExecutor {
                     int z = (int)location.getZ();
                     String name = plugin.searchPortalByCoords(x, y, z);
                     if (name!= null) {
-                        player.sendMessage(ChatColor.AQUA + "You are standing on the portal named "+name);
+                        player.sendMessage(ChatColor.GREEN + "You are standing on the portal named "+name);
                     }
                     else {
-                        player.sendMessage(ChatColor.AQUA + "You are not standing on a registered TravelPad"); 
+                        player.sendMessage(ChatColor.GREEN + "You are not standing on a registered TravelPad"); 
                     }
                     }
                     else
@@ -66,14 +66,14 @@ public class TravelpadCommandHandler implements CommandExecutor {
                     if (plugin.isNamed(player) == true) {
                         boolean store = plugin.storeName(player,args[1]);
                         if (store == true) {
-                            player.sendMessage(ChatColor.AQUA + "Registered this TravelPad with the name "+args[1]);
+                            player.sendMessage(ChatColor.GREEN + "Registered this TravelPad with the name "+args[1]);
                         }
                         else {
-                            player.sendMessage(ChatColor.AQUA + "That is not your TravelPad to register!");
+                            player.sendMessage(ChatColor.GREEN + "That is not your TravelPad to register!");
                         }
                     }
                     else {
-                        player.sendMessage(ChatColor.AQUA + "You are not standing on a registered Travel Pad"); 
+                        player.sendMessage(ChatColor.GREEN + "You are not standing on a registered Travel Pad"); 
                     }
                 }
             }
@@ -83,7 +83,7 @@ public class TravelpadCommandHandler implements CommandExecutor {
                 }
             }
                     else {
-                        player.sendMessage(ChatColor.AQUA + "Usage: /travelpad Name [name]");
+                        player.sendMessage(ChatColor.GREEN + "Usage: /travelpad Name [name]");
                     }
             }
                 else if (args[0].equalsIgnoreCase("delete")) {
@@ -112,7 +112,13 @@ public class TravelpadCommandHandler implements CommandExecutor {
                                    plugin.removePortal(onportal);
                                    Location newloc = new Location(player.getWorld(),xx,yy,zz);
                                    newloc.getBlock().setType(Material.AIR);                                
-                                   player.sendMessage(ChatColor.AQUA + "TravelPad unregistered.");
+                                   player.sendMessage(ChatColor.GREEN + "TravelPad unregistered.");
+                                    if (plugin.rc == true)
+                                    {
+                                            plugin.refund(player);
+                                            player.sendMessage(ChatColor.GREEN + "You have been refunded "+ChatColor.WHITE+plugin.returncharge);
+
+                                    }                                     
                                    }
                                    else
                                    {
@@ -120,6 +126,10 @@ public class TravelpadCommandHandler implements CommandExecutor {
                                    }
                                }
                           }
+                                else
+                                {
+                                    player.sendMessage(ChatColor.RED+"It doesn't look like you are on a registered TravelPad!");
+                                }
                     }
                     else if (args.length == 2)
                     {
@@ -135,7 +145,7 @@ public class TravelpadCommandHandler implements CommandExecutor {
                         Location newloc = new Location(plugin.getWorld(args[1]),xx,yy,zz);
                         plugin.removePortal(port);
                         newloc.getBlock().setType(Material.AIR);                      
-                        player.sendMessage(ChatColor.AQUA + "TravelPad unregistered.");
+                        player.sendMessage(ChatColor.GREEN + "TravelPad unregistered.");                        
                     }
                     }
                     else
@@ -177,38 +187,38 @@ public class TravelpadCommandHandler implements CommandExecutor {
                         {
                             Location location = new Location(world,x,(y+1),z);
                             tpplayer.teleport(location);
-                            player.sendMessage(ChatColor.AQUA + "Woosh! You have arrived at "+to+".");
+                            player.sendMessage(ChatColor.GREEN + "Woosh! You have arrived at "+to+".");
                             if (take == true)
                             {
-                                player.sendMessage(ChatColor.AQUA + "The price of your trip was 1 Enderman Pearl.");
+                                player.sendMessage(ChatColor.GREEN + "The price of your trip was 1 Enderman Pearl.");
                             }
                         }
                         }
                         else 
                             {
-                                player.sendMessage(ChatColor.AQUA + "You must have 1 Enderman Pearl in your inventory to teleport!");
+                                player.sendMessage(ChatColor.GREEN + "You must have 1 Enderman Pearl in your inventory to teleport!");
                             }                        
                         }
                         else
                         {
                            Location location = new Location(world,x,(y+1),z);
                             tpplayer.teleport(location);
-                            player.sendMessage(ChatColor.AQUA + "Woosh! You have arrived at "+to+".");                            
+                            player.sendMessage(ChatColor.GREEN + "Woosh! You have arrived at "+to+".");                            
                         }
                         }
                         else
                         {
-                        player.sendMessage(ChatColor.AQUA + "You must be on a travel pad to use that command!");    
+                        player.sendMessage(ChatColor.GREEN + "You must be on a travel pad to use that command!");    
                         }
                     }
                     else
                         {
-                        player.sendMessage(ChatColor.AQUA + "That TravelPad doesn't exist!");    
+                        player.sendMessage(ChatColor.GREEN + "That TravelPad doesn't exist!");    
                         }
                     }
                     else
                     {
-                    player.sendMessage(ChatColor.AQUA + "Usage: /travelpad tp [name]");    
+                    player.sendMessage(ChatColor.GREEN + "Usage: /travelpad tp [name]");    
                     }
                 }
             }

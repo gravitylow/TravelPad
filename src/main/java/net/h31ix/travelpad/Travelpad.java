@@ -16,16 +16,18 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.config.Configuration;
+import org.bukkit.plugin.RegisteredServiceProvider;
+import net.milkbowl.vault.economy.Economy;
+
 public class Travelpad extends JavaPlugin {
-    private TravelpadBlockListener blockListener = new TravelpadBlockListener(this); 
-    private Configuration config;
+    private FileConfiguration config;           
+    File configFile = new File("plugins/TravelPad/config.yml");
     private boolean named;
-    private File configFile;
     private String host;
     private String user;
     private String pass;
@@ -35,24 +37,60 @@ public class Travelpad extends JavaPlugin {
     private String table;
     private ResultSet rs = null;
     private Statement stmt;
+    public double makecharge = 0;    
+    public double returncharge = 0;  
+    public boolean mc = false;
+    public boolean rc = false;
+    public static Economy economy = null;
     Connection conn;
 
+    @Override
     public void onDisable() {
         System.out.println(this + " is now disabled!");
     }
 
+    @Override
     public void onEnable() {
     new File("plugins/TravelPad").mkdir();
-    configFile = new File("plugins/TravelPad/config.yml");
-	if(!configFile.exists()) {
-            makeConfig();
-        }
-    config = getConfiguration();     
+    if(!configFile.exists()) 
+    {
+        saveDefaultConfig();
+    }
+    config = getConfig();    
+    if (config.getString("Economy Charges.Creation charge") == null)
+    {
+        System.out.println("[TravelPad] Your config is out of date. Renaming and replacing it.");
+        configFile.renameTo(new File ("plugins/TravelPad/config_old.yml"));
+        saveDefaultConfig();
+    }
     getCommand("travelpad").setExecutor(new TravelpadCommandHandler(this));
     PluginManager pluginManager = getServer().getPluginManager();
-    pluginManager.registerEvent(org.bukkit.event.Event.Type.BLOCK_PLACE, blockListener, org.bukkit.event.Event.Priority.Low, this);
-    pluginManager.registerEvent(org.bukkit.event.Event.Type.BLOCK_BREAK, blockListener, org.bukkit.event.Event.Priority.Low, this);
-        config.load();
+    pluginManager.registerEvents(new TravelpadBlockListener(this), this);
+        mc = config.getBoolean("Economy Charges.Charge on creation");
+        rc = config.getBoolean("Economy Charges.Refund on deletion");
+        makecharge = config.getDouble("Economy Charges.Creation Charge");  
+        returncharge = config.getDouble("Economy Charges.Deletion Return");  
+        if (mc == true || rc == true)
+        {
+            if (getServer().getPluginManager().getPlugin("Vault") != null)
+            {
+                setupEconomy();
+            }
+            else
+            {
+                System.out.println("[TravelPad] Economy charges are ON in the config but you don't have Vault");
+                System.out.println("[TravelPad] Please download Vault to use TravelPad's economic function.");
+                mc = false;
+                rc = false;
+            }
+            if (!economy.hasBankSupport())
+            {
+                System.out.println("[TravelPad] Vault was found, but no economy plugin was found.");
+                mc = false;
+                rc = false;
+            }
+                
+        }        
         host = config.getString("MySQLSettings.Hostname");
         user = config.getString("MySQLSettings.Username");
         pass = config.getString("MySQLSettings.Password");
@@ -74,7 +112,18 @@ public class Travelpad extends JavaPlugin {
             System.out.println("[TravelPad] MySQL Connection FAILED.");
             pluginManager.disablePlugin(this);
         }
+        System.out.println(this+" is now enabled!");
     }
+    
+    private Boolean setupEconomy()
+    {
+        RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
+        if (economyProvider != null) {
+            economy = economyProvider.getProvider();
+        }
+
+        return (economy != null);
+    }    
     
     public String dbName()
     {
@@ -102,7 +151,30 @@ public class Travelpad extends JavaPlugin {
            {
                return true;
            }
-    }    
+    }
+    
+    public boolean canBuyPortal(Player player)
+    {
+        double balance = economy.getBalance(player.getName());
+        if (balance >= makecharge)
+        {           
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    
+    public void charge(Player player)
+    {
+        economy.withdrawPlayer(player.getName(), makecharge);
+    }
+    
+    public void refund(Player player)
+    {
+        economy.depositPlayer(player.getName(), returncharge);
+    }
     
     public void addPad(String query)
     {
@@ -142,29 +214,6 @@ public class Travelpad extends JavaPlugin {
        {
            return false;
        }
-    }
-    
-    public void makeConfig() {
-    try {
-        //Create a new blank config file
-        configFile.createNewFile();
-        } catch(Exception a) {
-            System.out.println("[TravelPad] Error generating a new config file!");
-        }
-    config = getConfiguration(); 
-    //Set all the config defaults, if they are not already set.
-    if (configFile.length()==0) {
-        config.setHeader("#TravelPad configuration file");
-        config.setProperty("Require ender pearl on tp", "true");        
-        config.setProperty("Take ender pearl on tp", "true");
-        config.setProperty("MySQLSettings.Username", "myusername");
-        config.setProperty("MySQLSettings.Password", "mypassword");
-        config.setProperty("MySQLSettings.Database", "travelpads");
-        config.setProperty("MySQLSettings.Hostname", "localhost");
-        config.setProperty("MySQLSettings.Port", "3306");  
-        config.setProperty("MySQLSettings.Table", "TravelPads");
-        config.save(); 		
-	}
     }
     
     public boolean checkTakeSetting()
@@ -249,7 +298,7 @@ public class Travelpad extends JavaPlugin {
         String name = null;
          try {
                 stmt = conn.createStatement();
-                rs = stmt.executeQuery("SELECT * FROM "+table+" WHERE x BETWEEN '"+(x-2)+"' AND '"+(x+2)+"' AND y BETWEEN '"+(y-2)+"' AND '"+(y+2)+"' AND z BETWEEN '"+(z-2)+"' AND '"+(z+2)+"'");                         
+                rs = stmt.executeQuery("SELECT * FROM "+table+" WHERE x BETWEEN "+(x-2)+" AND "+(x+2)+" AND y BETWEEN "+(y-4)+" AND "+(y+4)+" AND z BETWEEN "+(z-2)+" AND "+(z+2)+"");                         
                 while (rs.next())
                 {
                 name = rs.getString("name");
@@ -335,7 +384,13 @@ public class Travelpad extends JavaPlugin {
             PreparedStatement sampleQueryStatement = conn.prepareStatement("DELETE FROM "+table+" WHERE player='"+player.getName()+"'");
             sampleQueryStatement.executeUpdate();
             sampleQueryStatement.close();
-            player.sendMessage(ChatColor.AQUA + "Your TravelPad has expired because you did not name it!");
+            player.sendMessage(ChatColor.GREEN + "Your TravelPad has expired because you did not name it!");
+                    if (rc == true)
+                    {
+                            refund(player);
+                            player.sendMessage(ChatColor.GREEN + "You have been refunded "+ChatColor.WHITE+returncharge);
+                            
+                    }                
             ItemStack i = new ItemStack(Material.OBSIDIAN, 1);
             ItemStack e = new ItemStack(Material.BRICK, 4);
             world.dropItemNaturally(loc, i);

@@ -6,19 +6,19 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.inventory.ItemStack;
 
-public class TravelpadBlockListener extends BlockListener {
+public class TravelpadBlockListener implements Listener {
     private final Travelpad plugin;
     
     public TravelpadBlockListener(Travelpad plugin) {
     this.plugin = plugin;
     } 
      
-    @Override
+    @EventHandler
     public void onBlockPlace (BlockPlaceEvent event) {
         final Block block = event.getBlock();
         final Player player = event.getPlayer();
@@ -30,14 +30,26 @@ public class TravelpadBlockListener extends BlockListener {
         {
             if (block.getRelative(BlockFace.EAST).getType() == Material.BRICK && block.getRelative(BlockFace.WEST).getType() == Material.BRICK && block.getRelative(BlockFace.NORTH).getType() == Material.BRICK && block.getRelative(BlockFace.SOUTH).getType() == Material.BRICK)
             {
-                boolean perm = plugin.hasPermission(player, "create");
-                if (perm == true)
+                if (plugin.hasPermission(player, "create") == true)
                 {
                 if (plugin.checkPad("SELECT * FROM "+plugin.dbName()+" WHERE player='"+player.getName()+"'", player) != true)
                 {
+                    boolean c = false;
+                    if (plugin.mc == true)
+                    {
+                        if (plugin.canBuyPortal(player) == true)
+                        {
+                            c = true;
+                            plugin.charge(player);
+                        }
+                    }
+                    else
+                    {
+                        c = true;
+                    }
+                    if (c == true)
+                    {
                 plugin.addPad("INSERT INTO "+plugin.dbName()+" (id, player, x, y, z, name, world) VALUES ('0', '"+player.getName()+"', '"+x+"', '"+y+"', '"+z+"','NULL', '"+player.getWorld().getName()+"')");
-                        
-                //plugin.createPad(player, x, y, z);
                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
                 public void run() {
                     plugin.checkNamed(player);
@@ -53,14 +65,23 @@ public class TravelpadBlockListener extends BlockListener {
                     block.getRelative(BlockFace.UP).setType(Material.AIR);
                     }
                 }, 10L);
-                player.sendMessage(ChatColor.AQUA + "You have just created a TravelPad!");
+                player.sendMessage(ChatColor.GREEN + "You have just created a TravelPad!");
                 player.sendMessage(ChatColor.BLUE + "You must name this travel pad before it can be used.");
                 player.sendMessage(ChatColor.BLUE + "To name it, type "+ChatColor.GREEN +"/travelpad name [name]");
                 player.sendMessage(ChatColor.BLUE + "If you do not register it within 30 seconds it will be deleted!");
+                if (plugin.mc == true)
+                {
+                    player.sendMessage(ChatColor.GREEN + "You have been charged "+ChatColor.WHITE+plugin.makecharge+ChatColor.GREEN+" for this creation.");
+                }
+                }
+                    else
+                    {
+                        player.sendMessage(ChatColor.GREEN+"You don't have enough money for that!");
+                    }
                 }
                 else
                 {
-                player.sendMessage(ChatColor.AQUA + "Sorry, but you already have a TravelPad.");
+                player.sendMessage(ChatColor.GREEN + "Sorry, but you already have a TravelPad.");
                 }
                }
                 else
@@ -75,12 +96,12 @@ public class TravelpadBlockListener extends BlockListener {
             if (name!= null)
                 {
                     event.setCancelled(true);
-                    player.sendMessage(ChatColor.AQUA + "You cannot place blocks on a travelpad!");
+                    player.sendMessage(ChatColor.GREEN + "You cannot place blocks on a travelpad!");
                 }
         }
     }
     
-    @Override
+    @EventHandler
     public void onBlockBreak (BlockBreakEvent event) {
            Player player = event.getPlayer();
            Location location = event.getBlock().getLocation(); 
@@ -97,12 +118,18 @@ public class TravelpadBlockListener extends BlockListener {
            if (!owner.equalsIgnoreCase(safenick))
            {
                event.setCancelled(true);
-               player.sendMessage(ChatColor.AQUA + "That portal is not registered to you!");
+               player.sendMessage(ChatColor.GREEN + "That portal is not registered to you!");
                }
            else
            {
                plugin.removePortal(name);
-               player.sendMessage(ChatColor.AQUA + "TravelPad unregistered.");
+               player.sendMessage(ChatColor.GREEN + "TravelPad unregistered.");
+                    if (plugin.rc == true)
+                    {
+                            plugin.refund(player);
+                            player.sendMessage(ChatColor.GREEN + "You have been refunded "+ChatColor.WHITE+plugin.returncharge);
+                            
+                    }              
            }
                }
         }
@@ -112,9 +139,9 @@ public class TravelpadBlockListener extends BlockListener {
         if (name != null)
         {
             event.setCancelled(true);
-            player.sendMessage(ChatColor.AQUA + "You cannot break portals without unregistering them first.");
-            player.sendMessage(ChatColor.AQUA + "To unregister a portal, stand on it and type /travelpad delete");
-            player.sendMessage(ChatColor.AQUA + "Or simply break the obsidian center.");
+            player.sendMessage(ChatColor.GREEN + "You cannot break portals without unregistering them first.");
+            player.sendMessage(ChatColor.GREEN + "To unregister a portal, stand on it and type /travelpad delete");
+            player.sendMessage(ChatColor.GREEN + "Or simply break the obsidian center.");
         }
         }
     }
