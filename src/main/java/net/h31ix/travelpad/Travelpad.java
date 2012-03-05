@@ -2,12 +2,12 @@ package net.h31ix.travelpad;
 
 import java.io.File;
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.bukkit.ChatColor;
@@ -43,6 +43,7 @@ public class Travelpad extends JavaPlugin {
     public boolean rc = false;
     public static Economy economy = null;
     Connection conn;
+    private ArrayList portals = new ArrayList();
 
     @Override
     public void onDisable() {
@@ -57,7 +58,7 @@ public class Travelpad extends JavaPlugin {
         saveDefaultConfig();
     }
     config = getConfig();    
-    if (config.getString("Economy Charges.Creation charge") == null)
+    if (config.getString("Economy Charges.Creation Charge") == null)
     {
         System.out.println("[TravelPad] Your config is out of date. Renaming and replacing it.");
         configFile.renameTo(new File ("plugins/TravelPad/config_old.yml"));
@@ -101,16 +102,18 @@ public class Travelpad extends JavaPlugin {
         try {
             conn = DriverManager.getConnection(urlfinal, user, pass);
             System.out.println("[TravelPad] MySQL Connection Established!");
-            final DatabaseMetaData dbm = conn.getMetaData();
-            if (!dbm.getTables(null, null, config.getString("MySQLSettings.Table"), null).next()) {
-                stmt = conn.createStatement();
-                System.out.println("[TravelPad] Creating a table now..");
-                stmt.execute("CREATE TABLE  `"+config.getString("MySQLSettings.Table")+"` (`id` INT( 10 ) NOT NULL AUTO_INCREMENT ,`player` VARCHAR( 32 ) NOT NULL ,`x` VARCHAR( 5 ) NOT NULL ,`y` VARCHAR( 5 ) NOT NULL ,`z` VARCHAR( 5 ) NOT NULL ,`name` VARCHAR( 32 ) NOT NULL ,`world` VARCHAR( 32 ) NOT NULL ,PRIMARY KEY (  `id` ));");
-            }
+            stmt = conn.createStatement();
+            stmt.execute("CREATE TABLE IF NOT EXISTS `"+config.getString("MySQLSettings.Table")+"` (`id` INT( 10 ) NOT NULL AUTO_INCREMENT ,`player` VARCHAR( 32 ) NOT NULL ,`x` VARCHAR( 5 ) NOT NULL ,`y` VARCHAR( 5 ) NOT NULL ,`z` VARCHAR( 5 ) NOT NULL ,`name` VARCHAR( 32 ) NOT NULL ,`world` VARCHAR( 32 ) NOT NULL ,PRIMARY KEY (  `id` ));");
         } catch (SQLException ex) {
             Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
             System.out.println("[TravelPad] MySQL Connection FAILED.");
             pluginManager.disablePlugin(this);
+        }     
+        downloadPortals();        
+        try {
+            conn.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
         }
         System.out.println(this+" is now enabled!");
     }
@@ -130,11 +133,38 @@ public class Travelpad extends JavaPlugin {
         return table;
     }
     
-    public boolean hasPortal(Player player)
+    public void connect()
     {
+            try {
+                if (conn.isClosed())
+                {
+                    try {
+                        conn = null;
+                        conn = DriverManager.getConnection(urlfinal, user, pass);
+                        stmt = conn.createStatement();
+                    } catch (SQLException ex) {
+                        Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
+            }
+    }
+    
+    public void disconnect()
+    {
+        try {
+            conn.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public boolean hasPortal(Player player)
+    {    
+        connect();
         String playername = null;
            try {
-            stmt = conn.createStatement();
             rs = stmt.executeQuery("SELECT * FROM "+table+" WHERE player='"+player.getName()+"'");
             while (rs.next())
             {
@@ -143,6 +173,7 @@ public class Travelpad extends JavaPlugin {
         } catch (SQLException ex) {
             Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
         }
+           disconnect();
            if (playername == null)
            {
                return false;
@@ -178,6 +209,7 @@ public class Travelpad extends JavaPlugin {
     
     public void addPad(String query)
     {
+        connect();
         try {
             PreparedStatement sampleQueryStatement = conn.prepareStatement(query);
             sampleQueryStatement.executeUpdate();
@@ -185,13 +217,14 @@ public class Travelpad extends JavaPlugin {
         } catch (SQLException ex) {
             Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
         }
+        disconnect();
     }
     
     public boolean checkPad(String query, Player player)
     {
+        connect();
         String playername = null;
        try {
-            stmt = conn.createStatement();
             rs = stmt.executeQuery(query);
             while (rs.next())
             {
@@ -200,6 +233,7 @@ public class Travelpad extends JavaPlugin {
         } catch (SQLException ex) {
             Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
         }
+       disconnect();
        if (playername != null)
        {
            if (player.hasPermission("travelpad.infinite") || player.isOp())
@@ -242,75 +276,60 @@ public class Travelpad extends JavaPlugin {
         }
     }    
     
-    public int getCoordsX (String name)
+    public String getCoords (String name)
     {
-        int x = 0;
-        try {
-                stmt = conn.createStatement();
-                rs = stmt.executeQuery("SELECT * FROM "+table+" WHERE name='"+name+"'");
-                
-                while (rs.next())
-                {
-                x = rs.getInt("x");
-                }
-        } catch (SQLException ex) {
-            Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return x;
+        for (int i=0;i!=portals.size();i++)
+        {
+            String l = (String)portals.get(i);
+            String [] l2 = l.split("-");
+            String n = l2[3];
+            if (name.equalsIgnoreCase(n))
+            {
+                return l;
+            }
+        }  
+        return null;
     }
     
-    public int getCoordsY (String name)
+    public void downloadPortals()
     {
-        int y = 0;
-        try {
+         try {
                 stmt = conn.createStatement();
-                rs = stmt.executeQuery("SELECT * FROM "+table+" WHERE name='"+name+"'");
-                
+                rs = stmt.executeQuery("SELECT * FROM "+table);                         
                 while (rs.next())
                 {
-                y = rs.getInt("y");
+                int x = rs.getInt("x");
+                int y = rs.getInt("y");
+                int z = rs.getInt("z");
+                String name = rs.getString("name");
+                portals.add(x+"-"+y+"-"+z+"-"+name);
                 }
         } catch (SQLException ex) {
             Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return y;
+        }    
     }
-    
-    public int getCoordsZ (String name)
-    {
-        int z = 0;
-        try {
-                stmt = conn.createStatement();
-                rs = stmt.executeQuery("SELECT * FROM "+table+" WHERE name='"+name+"'");
-                
-                while (rs.next())
-                {
-                z = rs.getInt("z");
-                }
-        } catch (SQLException ex) {
-            Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return z;
-    } 
     
     public String searchPortalByCoords(int x, int y, int z)
     {
         String name = null;
-         try {
-                stmt = conn.createStatement();
-                rs = stmt.executeQuery("SELECT * FROM "+table+" WHERE x BETWEEN "+(x-2)+" AND "+(x+2)+" AND y BETWEEN "+(y-4)+" AND "+(y+4)+" AND z BETWEEN "+(z-2)+" AND "+(z+2)+"");                         
-                while (rs.next())
-                {
-                name = rs.getString("name");
-                }
-        } catch (SQLException ex) {
-            Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
+        for (int i=0;i!=portals.size();i++)
+        {
+            String l = (String)portals.get(i);
+            String [] l2 = l.split("-");
+            int xx = Integer.parseInt(l2[0]);
+            int yy = Integer.parseInt(l2[1]);
+            int zz = Integer.parseInt(l2[2]);
+            if (x <= xx+2 && x >= xx-2 && y <= yy+2 && y >= yy-2 && z <= zz+2 && z >= zz-2)
+            {
+                name = l2[3];
+            }
         }
-        return name;
+        return name;        
     }
     
         public String getOwner(String name)
     {
+        connect();
         String player = null;
          try {
                 stmt = conn.createStatement();
@@ -322,12 +341,14 @@ public class Travelpad extends JavaPlugin {
         } catch (SQLException ex) {
             Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
         }
+        disconnect();
         return player;
     }
        
     
     public boolean isNamed(Player player)
     {
+        connect();
         String name = null;
         String safenick = player.getName();
         try {
@@ -341,6 +362,7 @@ public class Travelpad extends JavaPlugin {
         } catch (SQLException ex) {
             Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
         }
+        disconnect();
            if (name == null)
            {
                return false;
@@ -351,8 +373,26 @@ public class Travelpad extends JavaPlugin {
            }    
     }
     
+    public boolean isValidName(String name)
+    {
+        for (int i=0;i!=portals.size();i++)
+        {
+            String l = (String)portals.get(i);
+            String [] l2 = l.split("-");
+            String x = l2[3];
+            System.out.println("checking if it is "+x);
+            if (x.equalsIgnoreCase(name))
+            {
+                System.out.println("already");
+                return false;
+            }
+        } 
+        return true;
+    }
+    
     public void checkNamed(Player player)
     {
+        connect();
         if (named != true)
         {
         int x = 0;
@@ -398,12 +438,14 @@ public class Travelpad extends JavaPlugin {
             } catch (SQLException ex) {
             Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
             }
+            disconnect();
         }
         named = false;
     }
     
     public void removePortal(String name)
     {
+        connect();
         int x = 0;
         int y = 0;
         int z = 0;
@@ -437,7 +479,9 @@ public class Travelpad extends JavaPlugin {
             world.dropItemNaturally(loc, e);             
             } catch (SQLException ex) {
             Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
-            }        
+            } 
+            portals.remove(x+"-"+y+"-"+z+"-"+name);
+            disconnect();
     }
     
     
@@ -459,14 +503,21 @@ public class Travelpad extends JavaPlugin {
     
     public boolean storeName(Player player, String name)
     {
+       connect();
        String safenick = player.getName();
        String playername = null;
+       int x = 0;
+       int y = 0;
+       int z = 0;
        try {
             stmt = conn.createStatement();
             rs = stmt.executeQuery("SELECT * FROM "+table+" WHERE player='"+safenick+"'");
             while (rs.next())
             {
             playername = rs.getString("player");
+                x = rs.getInt("x");
+                y = rs.getInt("y");
+                z = rs.getInt("z");            
             }
         } catch (SQLException ex) {
             Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
@@ -481,6 +532,8 @@ public class Travelpad extends JavaPlugin {
             } catch (SQLException ex) {
             Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
             }
+            disconnect();
+            portals.add(x+"-"+y+"-"+z+"-"+name);
             named = true;
             return true; 
         }
@@ -491,6 +544,7 @@ public class Travelpad extends JavaPlugin {
     }
     
     public World getWorld(String name) {
+        connect();
         String worldname = null;
         World world = null;
         try {
@@ -503,6 +557,7 @@ public class Travelpad extends JavaPlugin {
         } catch (SQLException ex) {
             Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
         }
+        disconnect();
         if (worldname != null)
         {
         world = getServer().getWorld(worldname);

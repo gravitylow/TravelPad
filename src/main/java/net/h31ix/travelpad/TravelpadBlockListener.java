@@ -89,6 +89,15 @@ public class TravelpadBlockListener implements Listener {
                     player.sendMessage(ChatColor.RED + "You dont have that permission.");
                 }
             }
+            else
+            {
+                String name = plugin.searchPortalByCoords(x, y, z);
+                if (name!= null)
+                    {
+                        event.setCancelled(true);
+                        player.sendMessage(ChatColor.GREEN + "You cannot place blocks on a travelpad!");
+                    }
+            }            
         }
         else
         {

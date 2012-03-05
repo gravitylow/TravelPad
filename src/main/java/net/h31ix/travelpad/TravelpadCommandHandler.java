@@ -61,22 +61,33 @@ public class TravelpadCommandHandler implements CommandExecutor {
                     boolean perm = plugin.hasPermission(player, "name");
                     if (perm == true)
                     {
-                    if (plugin.hasPortal(player) == true)
-                    {
-                    if (plugin.isNamed(player) == true) {
-                        boolean store = plugin.storeName(player,args[1]);
-                        if (store == true) {
-                            player.sendMessage(ChatColor.GREEN + "Registered this TravelPad with the name "+args[1]);
+                        if (plugin.hasPortal(player) == true)
+                        {
+                        if (plugin.isNamed(player) == true) 
+                        {
+                            boolean isValid = plugin.isValidName(args[1]);
+                            if (isValid == true)
+                            {                        
+                                boolean store = plugin.storeName(player,args[1]);
+                                if (store == true) 
+                                {                            
+                                    player.sendMessage(ChatColor.GREEN + "Registered this TravelPad with the name "+args[1]);
+                                }
+                                else {
+                                    player.sendMessage(ChatColor.GREEN + "That is not your TravelPad to register!");
+                                }
+                            }
+                            else
+                            {
+                                player.sendMessage(ChatColor.GREEN + "That name has already been taken!");
+                            }
                         }
-                        else {
-                            player.sendMessage(ChatColor.GREEN + "That is not your TravelPad to register!");
+                        else 
+                        {
+                            player.sendMessage(ChatColor.GREEN + "You are not standing on a registered Travel Pad"); 
                         }
-                    }
-                    else {
-                        player.sendMessage(ChatColor.GREEN + "You are not standing on a registered Travel Pad"); 
                     }
                 }
-            }
                 else
                 {
                     player.sendMessage(ChatColor.RED + "You dont have that permission.");
@@ -94,9 +105,10 @@ public class TravelpadCommandHandler implements CommandExecutor {
                                 int y = (int)location.getY();
                                 int z = (int)location.getZ();
                                 String onportal = plugin.searchPortalByCoords(x, y, z);
-                                int xx = plugin.getCoordsX(onportal);
-                                int yy = plugin.getCoordsY(onportal);
-                                int zz = plugin.getCoordsZ(onportal);
+                                String [] l2 = plugin.getCoords(onportal).split("-");
+                                int xx = Integer.parseInt(l2[0]);
+                                int yy = Integer.parseInt(l2[1]);
+                                int zz = Integer.parseInt(l2[2]);                          
                                 if (onportal != null)
                                 {
                                String safenick = player.getName();
@@ -134,9 +146,10 @@ public class TravelpadCommandHandler implements CommandExecutor {
                     else if (args.length == 2)
                     {
                     String port = args[1];
-                    int xx = plugin.getCoordsX(port);
-                    int yy = plugin.getCoordsY(port);
-                    int zz = plugin.getCoordsZ(port);
+                    String [] l2 = plugin.getCoords(port).split("-");
+                    int xx = Integer.parseInt(l2[0]);
+                    int yy = Integer.parseInt(l2[1]);
+                    int zz = Integer.parseInt(l2[2]);    
                     boolean perm = plugin.hasPermission(player, "delete.all");
                     if (perm == true)
                     {
@@ -159,9 +172,10 @@ public class TravelpadCommandHandler implements CommandExecutor {
                     if (args.length == 2)
                     {
                     String to = args[1];
-                    int x = plugin.getCoordsX(to);
-                    int y = plugin.getCoordsY(to);
-                    int z = plugin.getCoordsZ(to);
+                    String [] l2 = plugin.getCoords(to).split("-");
+                    int x = Integer.parseInt(l2[0]);
+                    int y = Integer.parseInt(l2[1]);
+                    int z = Integer.parseInt(l2[2]);    
                     if (x!=0 && y!=0 && z!=0)
                     {
                         Location plocation = player.getLocation(); 
@@ -181,7 +195,7 @@ public class TravelpadCommandHandler implements CommandExecutor {
                         boolean take = plugin.checkTakeSetting();
                         if (take == true)
                             {
-                            inv.remove(item);
+                            inv.removeItem(item);
                             }
                         if (world!=null)
                         {
