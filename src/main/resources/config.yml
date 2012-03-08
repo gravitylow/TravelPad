@@ -11,8 +11,9 @@ Portal Options:
   Creation charge: 30.0
   Deletion return: 10.0
   
+#Turn convert to true, make sure your SQL plugins are correct, and run the plugin to convert to flatfile.  
+#If you notice any errors PLEASE REPORT THEM. It means your pads have NOT transferred properly.
 Storage Options:
-  #Turn this to true and fill out your previous SQL settings to have your database converted to flatfile.
   Convert: false
   
 MySQLSettings:

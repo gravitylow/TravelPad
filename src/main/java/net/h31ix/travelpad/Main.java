@@ -72,6 +72,15 @@ public class Main extends JavaPlugin {
         pads = YamlConfiguration.loadConfiguration(padsFile);
         config = getConfig();
         portals = pads.getList("pads");
+        if (config.getString("Require ender pearl on tp") != null)
+        {
+            System.out.println("[TravelPad] I detected that you're using the old configuration file.");
+            System.out.println("[TravelPad] If you want your previous travelpads to work simply set Convert to true in the new config.");
+            System.out.println("[TravelPad] That will download your SQL entries into the new flatfile format.");            
+            configFile.renameTo(new File("plugins/TravelPad/config_outdated.yml"));
+            saveDefaultConfig();           
+        }   
+        
         if (config.getBoolean("Storage Options.Convert"))
         {
             System.out.println("[TravelPad] You are running in convert mode, this will connect to your SQL Database, convert it into flatfile, and then continue with normal operation.");
