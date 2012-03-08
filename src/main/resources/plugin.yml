@@ -1,13 +1,13 @@
 author: H31IX
 database: false
-description: Teleportation
-main: net.h31ix.travelpad.Travelpad
+description: Travelpad for Bukkit
+generator: http://dinnerbone.com/minecraft/tools/pluginator/
+main: net.h31ix.travelpad.Main
 name: TravelPad
 startup: postworld
-softdepend: [Vault]
 url: http://H31IX.NET/
-version: '1.6'
+version: '1.7'
 commands:
-  travelpad: 
+  travelpad:
     description: Use travelpad
-    usage: /travelpad 
+    usage: /travelpad

@@ -2,241 +2,158 @@ package net.h31ix.travelpad;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 
 public class TravelpadCommandHandler implements CommandExecutor {
-	private final Travelpad plugin;
-	
-	public TravelpadCommandHandler(Travelpad plugin){
-		this.plugin = plugin;
-	}
-        
-        @Override
-	public boolean onCommand(CommandSender cs, Command cmd, String alias, String[] args) {
+    Main plugin;
+    
+    public TravelpadCommandHandler(Main plugin)
+    {
+        this.plugin = plugin;
+    }
+    
+    @Override
+    public boolean onCommand(CommandSender cs, Command cmd, String alias, String[] args) {
+        if (!(cs instanceof Player))
+        {
+            System.out.println("Travelpad commands can only be used in-game");
+        }
+        else
+        {
             Player player = (Player)cs;
-            if(cmd.getName().equalsIgnoreCase("travelpad")) {
-                if (args.length < 1)
-                {
-                   player.sendMessage(ChatColor.RED + "Commands:"); 
-                   player.sendMessage(ChatColor.GREEN + "/travelpad Identify");
-                   player.sendMessage(ChatColor.BLUE + "Identifies the current pad you are standing on.");
-                   player.sendMessage(ChatColor.GREEN + "/travelpad Name [name]");
-                   player.sendMessage(ChatColor.BLUE + "Names your created pad.");
-                   player.sendMessage(ChatColor.GREEN + "/travelpad tp [name]");
-                   player.sendMessage(ChatColor.BLUE + "Teleports your player to the specified travelpad."); 
-                   player.sendMessage(ChatColor.GREEN + "/travelpad delete");
-                   player.sendMessage(ChatColor.BLUE + "Deletes the travelpad you are standing on, if its yours.");                     
-                }
-                else if (args[0].equalsIgnoreCase("identify")) {
-                    boolean perm = plugin.hasPermission(player, "identify");
-                    if (perm == true)
+            if (args.length == 1)
+            {
+                if (args[0].equalsIgnoreCase("identify") || args[0].equalsIgnoreCase("i"))
+                {         
+                    String name = plugin.getPortal(player.getLocation());
+                    if (name != null)
                     {
-                    Location location = player.getLocation();
-                    int x = (int)location.getX();
-                    int y = (int)location.getY();
-                    int z = (int)location.getZ();
-                    String name = plugin.searchPortalByCoords(x, y, z);
-                    if (name!= null) {
-                        player.sendMessage(ChatColor.GREEN + "You are standing on the portal named "+name);
-                    }
-                    else {
-                        player.sendMessage(ChatColor.GREEN + "You are not standing on a registered TravelPad"); 
-                    }
+                        player.sendMessage(ChatColor.GREEN+"You are at the pad named "+ChatColor.WHITE+name);
                     }
                     else
                     {
-                        player.sendMessage(ChatColor.RED + "You dont have that permission.");
+                        player.sendMessage(ChatColor.RED+"You ar not standing on a registered TravelPad!");
                     }
-                }
-                else if (args[0].equalsIgnoreCase("name")) { 
-                    if (args.length == 2)
+                }             
+                else if (args[0].equalsIgnoreCase("delete") || args[0].equalsIgnoreCase("d"))
+                {
+                    if (player.hasPermission("travelpad.infinite"))
                     {
-                    boolean perm = plugin.hasPermission(player, "name");
-                    if (perm == true)
+                        player.sendMessage(ChatColor.RED+"You have infinite portal access, please delete portal by name instead.");
+                    }
+                    else
                     {
-                        if (plugin.hasPortal(player) == true)
-                        {
-                        if (plugin.isNamed(player) == true) 
-                        {
-                            boolean isValid = plugin.isValidName(args[1]);
-                            if (isValid == true)
-                            {                        
-                                boolean store = plugin.storeName(player,args[1]);
-                                if (store == true) 
-                                {                            
-                                    player.sendMessage(ChatColor.GREEN + "Registered this TravelPad with the name "+args[1]);
-                                }
-                                else {
-                                    player.sendMessage(ChatColor.GREEN + "That is not your TravelPad to register!");
+                        if (player.hasPermission("travelpad.delete"))
+                        {                       
+                            if (plugin.hasPortal(player))
+                            {
+                                String name = plugin.getPlayersPortal(player);
+                                if (name != null)
+                                {
+                                    plugin.removePad(name);
+                                    player.sendMessage(ChatColor.GREEN+"Removed your TravelPad!");
                                 }
                             }
                             else
                             {
-                                player.sendMessage(ChatColor.GREEN + "That name has already been taken!");
+                                player.sendMessage(ChatColor.RED+"You don't have a TravelPad!");
                             }
                         }
-                        else 
+                        else
                         {
-                            player.sendMessage(ChatColor.GREEN + "You are not standing on a registered Travel Pad"); 
+                            player.sendMessage(ChatColor.RED+"You don't have permission to do that.");
                         }
                     }
                 }
-                else
+            }
+            else if (args.length == 2)
+            {
+                if (args[0].equalsIgnoreCase("teleport") || args[0].equalsIgnoreCase("tp"))
+                {    
+                    if (player.hasPermission("travelpad.teleport"))
+                    {
+                        String name = plugin.getPortal(player.getLocation());
+                        if (name != null)
+                        {     
+                            if (plugin.doesPadExist(args[1]))
+                            {
+                                Location loc = plugin.getCoords(args[1]);
+                                plugin.teleport(player, loc);
+                            }
+                            else
+                            {
+                                player.sendMessage(ChatColor.RED+"That pad doesn't seem to exist...");
+                            }
+                        }
+                        else
+                        {
+                            player.sendMessage(ChatColor.RED+"You must be standing on a pad to do that.");
+                        }
+                    }
+                    else
+                    {
+                        player.sendMessage(ChatColor.RED+"You don't have permission to do that.");
+                    }
+                }                   
+                if (args[0].equalsIgnoreCase("name") || args[0].equalsIgnoreCase("n"))
                 {
-                    player.sendMessage(ChatColor.RED + "You dont have that permission.");
-                }
-            }
-                    else {
-                        player.sendMessage(ChatColor.GREEN + "Usage: /travelpad Name [name]");
-                    }
-            }
-                else if (args[0].equalsIgnoreCase("delete")) {
-                    if (args.length == 1)
-                            {
-                                Location location = player.getLocation(); 
-                                int x = (int)location.getX();
-                                int y = (int)location.getY();
-                                int z = (int)location.getZ();
-                                String onportal = plugin.searchPortalByCoords(x, y, z);
-                                String [] l2 = plugin.getCoords(onportal).split("-");
-                                int xx = Integer.parseInt(l2[0]);
-                                int yy = Integer.parseInt(l2[1]);
-                                int zz = Integer.parseInt(l2[2]);                          
-                                if (onportal != null)
-                                {
-                               String safenick = player.getName();
-                               if (!(plugin.getOwner(onportal)).equalsIgnoreCase(safenick))
-                               {
-                                   player.sendMessage(ChatColor.RED + "That portal is not registered to you!");
-                               }
-                               else
-                               {
-                                   boolean perm = plugin.hasPermission(player, "delete");
-                                   if (perm == true)
-                                   {
-                                   plugin.removePortal(onportal);
-                                   Location newloc = new Location(player.getWorld(),xx,yy,zz);
-                                   newloc.getBlock().setType(Material.AIR);                                
-                                   player.sendMessage(ChatColor.GREEN + "TravelPad unregistered.");
-                                    if (plugin.rc == true)
-                                    {
-                                            plugin.refund(player);
-                                            player.sendMessage(ChatColor.GREEN + "You have been refunded "+ChatColor.WHITE+plugin.returncharge);
-
-                                    }                                     
-                                   }
-                                   else
-                                   {
-                                       player.sendMessage(ChatColor.RED + "You dont have that permission.");
-                                   }
-                               }
-                          }
-                                else
-                                {
-                                    player.sendMessage(ChatColor.RED+"It doesn't look like you are on a registered TravelPad!");
-                                }
-                    }
-                    else if (args.length == 2)
+                    if (player.hasPermission("travelpad.name"))
                     {
-                    String port = args[1];
-                    String [] l2 = plugin.getCoords(port).split("-");
-                    int xx = Integer.parseInt(l2[0]);
-                    int yy = Integer.parseInt(l2[1]);
-                    int zz = Integer.parseInt(l2[2]);    
-                    boolean perm = plugin.hasPermission(player, "delete.all");
-                    if (perm == true)
-                    {
-                    if (xx!=0 && yy!=0 && zz!=0)
-                    {
-                        Location newloc = new Location(plugin.getWorld(args[1]),xx,yy,zz);
-                        plugin.removePortal(port);
-                        newloc.getBlock().setType(Material.AIR);                      
-                        player.sendMessage(ChatColor.GREEN + "TravelPad unregistered.");                        
-                    }
-                    }
-                    else
-                    {
-                        player.sendMessage(ChatColor.RED + "You dont have that permission.");
-                    }
-                }
-           }
-                else if (args[0].equalsIgnoreCase("tp")) {
-                    Player tpplayer = (Player)cs;
-                    if (args.length == 2)
-                    {
-                    String to = args[1];
-                    String [] l2 = plugin.getCoords(to).split("-");
-                    int x = Integer.parseInt(l2[0]);
-                    int y = Integer.parseInt(l2[1]);
-                    int z = Integer.parseInt(l2[2]);    
-                    if (x!=0 && y!=0 && z!=0)
-                    {
-                        Location plocation = player.getLocation(); 
-                        int xx = (int)plocation.getX();
-                        int yy = (int)plocation.getY();
-                        int zz = (int)plocation.getZ();
-                        String onportal = plugin.searchPortalByCoords(xx, yy, zz);
-                        if (onportal != null)
+                        if (plugin.nameIsValid(args[1]))
                         {
-                        Inventory inv = player.getInventory();
-                        ItemStack item = new ItemStack(Material.ENDER_PEARL, 1);
-                        World world = plugin.getWorld(to);
-                        if (plugin.checkEnderSetting() == true)
-                        {
-                            if (inv.contains(item))
+                            String name = args[1];
+                            boolean set = plugin.namePad(player, name);
+                            if (set)
                             {
-                        boolean take = plugin.checkTakeSetting();
-                        if (take == true)
-                            {
-                            inv.removeItem(item);
+                                player.sendMessage(ChatColor.GREEN+"Named your pad "+ChatColor.WHITE+name);
                             }
-                        if (world!=null)
-                        {
-                            Location location = new Location(world,x,(y+1),z);
-                            tpplayer.teleport(location);
-                            player.sendMessage(ChatColor.GREEN + "Woosh! You have arrived at "+to+".");
-                            if (take == true)
+                            else
                             {
-                                player.sendMessage(ChatColor.GREEN + "The price of your trip was 1 Enderman Pearl.");
+                                player.sendMessage(ChatColor.RED+"You don't have a pad waiting to be named!");
                             }
-                        }
-                        }
-                        else 
-                            {
-                                player.sendMessage(ChatColor.GREEN + "You must have 1 Enderman Pearl in your inventory to teleport!");
-                            }                        
                         }
                         else
                         {
-                           Location location = new Location(world,x,(y+1),z);
-                            tpplayer.teleport(location);
-                            player.sendMessage(ChatColor.GREEN + "Woosh! You have arrived at "+to+".");                            
-                        }
-                        }
-                        else
-                        {
-                        player.sendMessage(ChatColor.GREEN + "You must be on a travel pad to use that command!");    
-                        }
-                    }
-                    else
-                        {
-                        player.sendMessage(ChatColor.GREEN + "That TravelPad doesn't exist!");    
+                            player.sendMessage(ChatColor.RED+"That name is already in use..");
                         }
                     }
                     else
                     {
-                    player.sendMessage(ChatColor.GREEN + "Usage: /travelpad tp [name]");    
+                        player.sendMessage(ChatColor.RED+"You don't have permission to do that.");
+                    }                    
+                }
+                else if (args[0].equalsIgnoreCase("delete") || args[0].equalsIgnoreCase("d"))
+                {
+                    if (player.hasPermission("travelpad.delete.any"))
+                    {
+                        if (plugin.doesPadExist(args[1]))
+                        {
+                            plugin.removePad(args[1]);
+                            player.sendMessage(ChatColor.GREEN+"Removed pad "+ChatColor.WHITE+args[1]);
+                        }
+                        else
+                        {
+                            player.sendMessage(ChatColor.RED+"Couldn't find that pad.");
+                        }
                     }
+                    else
+                    {
+                        player.sendMessage(ChatColor.RED+"You don't have permission to do that.");
+                    }                    
                 }
             }
-                
-            return true;
+            else
+            {
+                player.sendMessage(ChatColor.GREEN+"/travelpad [name/n] name");
+                player.sendMessage(ChatColor.GREEN+"/travelpad [identify/i]");
+                player.sendMessage(ChatColor.GREEN+"/travelpad [delete/d] [name]");
+                player.sendMessage(ChatColor.GREEN+"/travelpad [teleport/tp] name");
+            }
         }
+        return true;
     }
+    
+}

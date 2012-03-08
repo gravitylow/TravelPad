@@ -1,11 +1,20 @@
-#Travelpad Configuration File
-Require ender pearl on tp: true
-Take ender pearl on tp: true
-Economy Charges:
+Teleportation Options:
+  Require item: false
+  Take item: false
+  Item ID: 368
+  Charge player: false
+  Charge amount: 10.0
+  
+Portal Options:
   Charge on creation: false
   Refund on deletion: false
-  Creation Charge: 30.0
-  Deletion Return: 10.0
+  Creation charge: 30.0
+  Deletion return: 10.0
+  
+Storage Options:
+  #Turn this to true and fill out your previous SQL settings to have your database converted to flatfile.
+  Convert: false
+  
 MySQLSettings:
   Username: username
   Password: pass
