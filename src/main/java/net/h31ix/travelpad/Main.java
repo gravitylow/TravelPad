@@ -1,5 +1,8 @@
 package net.h31ix.travelpad;
 
+import net.h31ix.travelpad.metrics.Metrics;
+import net.h31ix.travelpad.api.Pad;
+import com.massivecraft.factions.Factions;
 import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
@@ -41,6 +44,7 @@ public class Main extends JavaPlugin {
     private double rcc;
     private double tcc;
     private List portals;
+    public List padList;
     private boolean debug = false;
     
     @Override
@@ -54,8 +58,7 @@ public class Main extends JavaPlugin {
         metrics.start();
     } catch (IOException e) {
         debug("[TravelPad] Issue with Metrics..");
-    }       
-        
+    }   
         getCommand("travelpad").setExecutor(new TravelpadCommandHandler(this));
         if (!configFile.exists())
         {
@@ -135,6 +138,39 @@ public class Main extends JavaPlugin {
         {
             portals = new ArrayList();
         }
+    }
+    
+    public void getPads()
+    {
+        for (int i=0;i<portals.size();i++)
+        {
+            String currentPad = (String)portals.get(i);
+            String [] p = currentPad.split("/");
+            String name = p[0];
+            String owner = p[5];
+            boolean protect = false;
+            Location loc = new Location(getServer().getWorld(p[4]),Double.parseDouble(p[1]),Double.parseDouble(p[2]),Double.parseDouble(p[3]));
+            if (pads.getList("whitelist."+name) != null)
+            {
+                protect = true;
+            }
+            padList.add(new Pad(loc,owner,name,protect));
+        }  
+    }
+    
+    public int getAmount(Player player)
+    {  
+        int amount = 0;
+        for (int i=0;i<portals.size();i++)
+        {
+            String currentPad = (String)portals.get(i);
+            String [] pad = currentPad.split("/");
+            if (pad[5].equalsIgnoreCase(player.getName()))
+            {
+                amount++;
+            }
+        }  
+        return amount;       
     }
     
     public void convert()
@@ -223,6 +259,11 @@ public class Main extends JavaPlugin {
         boolean tp = true;
         boolean take = false;
         boolean found = false;
+        boolean fac = true;
+        if (getServer().getPluginManager().getPlugin("Factions") != null)
+        {
+            //if ()
+        }
         ItemStack s = null;
         if (ri)
         {
@@ -327,7 +368,7 @@ public class Main extends JavaPlugin {
     
     public boolean canBuyPortal(Player player)
     {
-        if (player.hasPermission("travelpad.nopay"))
+       if (player.hasPermission("travelpad.nopay"))
         {
             return true;
         }
@@ -387,7 +428,7 @@ public class Main extends JavaPlugin {
         if (!player.hasPermission("travelpad.nopay"))
         {
             economy.withdrawPlayer(player.getName(), tcc);
-            player.sendMessage(ChatColor.GOLD+"You were charged "+mcc);
+            player.sendMessage(ChatColor.GOLD+"You were charged "+tcc);
             debug("Charged player "+tcc);
         }
     }    
@@ -451,6 +492,7 @@ public class Main extends JavaPlugin {
         }  
         return null;              
     }
+    
     public String getPortal(Location loc)
     {
         int x = (int)loc.getX();
