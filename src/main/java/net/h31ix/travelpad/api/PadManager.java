@@ -2,21 +2,29 @@ package net.h31ix.travelpad.api;
 
 import java.util.ArrayList;
 import java.util.List;
-import net.h31ix.travelpad.Main;
+import net.h31ix.travelpad.Configuration;
+import net.h31ix.travelpad.Globals;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+
+/**
+ * <p>
+ * Gives access to various TravelPad methods of checking and plugin backend work.
+ */
 
 public class PadManager {
     List list;
-    
-    /**
-     * Initialize the PadManager
-     *
-     * @param plugin The TravelPad plugin
-     */          
-    public PadManager(Main plugin)
+    Globals global = new Globals();
+    Configuration config = global.config;
+   
+    public PadManager()
     {
-        this.list = plugin.padList;
     }
     
     /**
@@ -36,6 +44,42 @@ public class PadManager {
             }
         }
         return amount;
+    }
+    
+    public void createPad(final Player owner, final Location location)
+    {
+        if (list == null)
+        {
+            list = new ArrayList();
+        }
+        list.add((int)location.getX()+"/"+(int)location.getY()+"/"+(int)location.getZ()+"/"+location.getWorld().getName()+"/"+owner.getName());
+        config.saveUnv(list);
+        if (config.getMake() != 0)
+        {
+            global.charge(owner);
+        }
+        final Block block = location.getWorld().getBlockAt(location);
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Bukkit.getPluginManager().getPlugin("TravelPad"), new Runnable() 
+        {
+            public void run() 
+            {
+                isNamed(owner, owner.getWorld(), (int)location.getX(), (int)location.getX(), (int)location.getX());
+            }
+        },      600L);
+        block.getRelative(BlockFace.EAST).setType(Material.STEP);
+        block.getRelative(BlockFace.WEST).setType(Material.STEP);
+        block.getRelative(BlockFace.NORTH).setType(Material.STEP);
+        block.getRelative(BlockFace.SOUTH).setType(Material.STEP);
+        block.getRelative(BlockFace.UP).setType(Material.WATER);
+        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(Bukkit.getPluginManager().getPlugin("TravelPad"), new Runnable() 
+        {
+            public void run() 
+            {
+                block.getRelative(BlockFace.UP).setType(Material.AIR);
+            }
+        }, 10L);
+        owner.sendMessage(ChatColor.GREEN + "You have just created a TravelPad!");
+        owner.sendMessage(ChatColor.GREEN + "Plaase use "+ChatColor.WHITE+"/travelpad name [name]"+ChatColor.GREEN+" to name this pad.");                               
     }
     
     /**
@@ -120,5 +164,24 @@ public class PadManager {
         } 
         return null;
     }
+    
+    /**
+     * Check if a pad is named, it will be deleted and expired if not.
+     *
+     * @param  player  The player who owns the portal
+     * @param  world  World in which the portal resides
+     * @param  player  The player who owns the portal
+     * @param  x  X Location of portal
+     * @param  y  Y Location of portal
+     * @param  z  Z Location of portal
+     */      
+    public void isNamed(Player player, World world, int x, int y, int z)
+    {
+        List l = config.getUnv();
+        if (l.contains(x+"/"+y+"/"+z+"/"+world.getName()+"/"+player.getName()))
+        {
+            new PadManager().getPadAt(new Location(world,x,y,z)).delete();
+        }
+    }      
     
 }

@@ -4,6 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Location;
 
+/**
+ * <p>
+ * Defines a new TravelPad on the map, this is only used after a pad has a name.
+ */
+
 public class Pad {
     
     private Location location = null;
@@ -11,15 +16,7 @@ public class Pad {
     private String name = null;
     private boolean protect = false;
     List whitelist = null;   
-    
-    /**
-     * Initialize the pad. This object is used ONLY AFTER A PAD IS NAMED.
-     *
-     * @param  location  Location of the obsidian center of the pad
-     * @param  owner owner of the pad's name
-     * @param name Name of the pad
-     * @param protect If the pad is whitelisted or not
-     */    
+
     public Pad(Location location, String owner, String name, boolean protect)
     {
         this.location = location;

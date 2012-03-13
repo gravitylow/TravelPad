@@ -7,6 +7,11 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
+/**
+ * <p>
+ * Called when a player successfully triggers a new Pad creation
+ */
+
 public class PadCreationEvent extends Event implements Cancellable{
     private static final HandlerList handlers = new HandlerList();
     private Player player;

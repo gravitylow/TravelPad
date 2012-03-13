@@ -140,6 +140,7 @@ public class Main extends JavaPlugin {
         }
     }
     
+    @Deprecated
     public void getPads()
     {
         for (int i=0;i<portals.size();i++)
@@ -157,7 +158,8 @@ public class Main extends JavaPlugin {
             padList.add(new Pad(loc,owner,name,protect));
         }  
     }
-    
+      
+    @Deprecated    
     public int getAmount(Player player)
     {  
         int amount = 0;
@@ -243,6 +245,7 @@ public class Main extends JavaPlugin {
         debug("Saved files");
     }
     
+    @Deprecated    
     public double getRandom()
     {       
         int x = (int)(2*Math.random())+1;
@@ -320,6 +323,7 @@ public class Main extends JavaPlugin {
         }
     }
     
+    @Deprecated    
     private Boolean setupEconomy()
     {
         RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(net.milkbowl.vault.economy.Economy.class);
@@ -330,6 +334,7 @@ public class Main extends JavaPlugin {
         return (economy != null);
     }      
     
+    @Deprecated    
     public boolean hasPortal(Player player)
     {
         if (player.hasPermission("travelpad.infinite"))
@@ -352,6 +357,7 @@ public class Main extends JavaPlugin {
         }    
     }
     
+    @Deprecated    
     public String getPlayersPortal(Player player)
     {
         for (int i=0;i<portals.size();i++)
@@ -413,6 +419,7 @@ public class Main extends JavaPlugin {
         }
     }    
     
+    @Deprecated    
     public void charge(Player player)
     {
         if (!player.hasPermission("travelpad.nopay"))
@@ -423,6 +430,7 @@ public class Main extends JavaPlugin {
         }
     }
     
+    @Deprecated    
     public void chargeTP(Player player)
     {
         if (!player.hasPermission("travelpad.nopay"))
@@ -433,6 +441,7 @@ public class Main extends JavaPlugin {
         }
     }    
     
+    @Deprecated    
     public void refund(Player player)
     {
         if (!player.hasPermission("travelpad.nopay"))
@@ -443,6 +452,7 @@ public class Main extends JavaPlugin {
         }
     } 
     
+    @Deprecated    
     public boolean nameIsValid(String name)
     {
         for (int i=0;i<portals.size();i++)
@@ -459,6 +469,7 @@ public class Main extends JavaPlugin {
         return true;
     }
     
+    @Deprecated    
     public String checkPortal(Location loc)
     {
         int x = (int)loc.getX();
@@ -479,6 +490,7 @@ public class Main extends JavaPlugin {
         return null;        
     }
     
+    @Deprecated    
     public Location getCoords(String name)
     {
         for (int i=0;i<portals.size();i++)
@@ -493,6 +505,7 @@ public class Main extends JavaPlugin {
         return null;              
     }
     
+    @Deprecated    
     public String getPortal(Location loc)
     {
         int x = (int)loc.getX();
@@ -530,6 +543,7 @@ public class Main extends JavaPlugin {
         return false;
     }
     
+    @Deprecated    
     public void addPad(Player player, Block block)
     {
         Location loc = block.getLocation();
@@ -579,6 +593,7 @@ public class Main extends JavaPlugin {
         return false;
     }
     
+    @Deprecated    
     public void isNamed(Player player, World world, int x, int y, int z)
     {
         List list = pads.getList("unv");
@@ -595,6 +610,7 @@ public class Main extends JavaPlugin {
         }
     }
     
+    @Deprecated    
     public void removePadUnv(int x, int y, int z)
     {
         List list = pads.getList("unv");
@@ -620,6 +636,7 @@ public class Main extends JavaPlugin {
         save();      
     }  
     
+    @Deprecated    
     public void removeBlocks(World world, int x, int y, int z)
     {
         Block block = world.getBlockAt(x,y,z);

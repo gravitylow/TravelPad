@@ -5,6 +5,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
+/**
+ * <p>
+ * Called when a player makes the shape of a pad
+ */
+
 public class PadCreationAttemptEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
     private Player player;
