@@ -1,7 +1,5 @@
 package net.h31ix.travelpad.api;
 
-import net.h31ix.travelpad.Configuration;
-import net.h31ix.travelpad.Globals;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -20,14 +18,12 @@ public class UnnamedPad {
     
     private Location location = null;
     private Player owner = null;
-    private Globals globals = new Globals();
-    private Configuration config = globals.config;
+    Configuration config = new Configuration();
 
     public UnnamedPad(Location location, Player owner)
     {
         this.location = location;
         this.owner = owner;
-        config.load();
     }
 
     /**
@@ -56,10 +52,10 @@ public class UnnamedPad {
     public void delete()
     {
         owner.sendMessage(ChatColor.RED+"TravelPad expired because it was not named.");
-        double returnValue = config.getReturn();
+        double returnValue = config.deleteAmount;
         if (returnValue != 0)
         {
-            globals.refund(owner);
+            //globals.refund(owner);
         }        
         World world = location.getWorld();
         Block block = world.getBlockAt(location);
@@ -75,3 +71,4 @@ public class UnnamedPad {
     }
     
 }
+
