@@ -2,7 +2,15 @@ package net.h31ix.travelpad.api;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 /**
  * <p>
@@ -16,6 +24,7 @@ public class Pad {
     private String name = null;
     private boolean protect = false;
     List whitelist = null;   
+    Configuration config = new Configuration();
 
     public Pad(Location location, String owner, String name, boolean protect)
     {
@@ -120,11 +129,41 @@ public class Pad {
     }
     
     /**
-     * Remove the portal from existance
+     * Create a new, named pad.
+     */        
+    public void create()
+    {
+        config.removePad(new UnnamedPad(location, Bukkit.getPlayer(owner)));
+        config.addPad(this);
+    }
+    
+    /**
+     * Remove the portal from existence
      */            
     public void delete()
     {
-        //TODO: What do?
+        config.removePad(this);
+        Player player = Bukkit.getPlayer(owner);
+        if (player != null)
+        {
+            player.sendMessage(ChatColor.RED+"TravelPad "+ChatColor.WHITE+name+ChatColor.RED+" deleted");
+            double returnValue = config.deleteAmount;
+            if (returnValue != 0)
+            {
+                //globals.refund(owner);
+            }        
+        }
+        World world = location.getWorld();
+        Block block = world.getBlockAt(location);
+        block.setType(Material.AIR);
+        block.getRelative(BlockFace.EAST).setType(Material.AIR);
+        block.getRelative(BlockFace.SOUTH).setType(Material.AIR);
+        block.getRelative(BlockFace.NORTH).setType(Material.AIR);
+        block.getRelative(BlockFace.WEST).setType(Material.AIR);   
+        ItemStack i = new ItemStack(Material.OBSIDIAN, 1);
+        ItemStack e = new ItemStack(Material.BRICK, 4);
+        world.dropItemNaturally(block.getLocation(), i);
+        world.dropItemNaturally(block.getLocation(), e);     
     }
     
 }

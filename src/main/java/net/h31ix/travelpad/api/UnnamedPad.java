@@ -1,13 +1,16 @@
 package net.h31ix.travelpad.api;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 
 /**
  * <p>
@@ -47,10 +50,47 @@ public class UnnamedPad {
     }
     
     /**
-     * Remove the portal from existance
+     * Register the pad as a new, unnamed pad.
+     */        
+    public void create()
+    {
+        config.addUnv(this);
+        final Server server = Bukkit.getServer();
+        final Plugin plugin = server.getPluginManager().getPlugin("TravelPad");
+        server.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() 
+        {
+            public void run() 
+            {
+                if(config.isUnv(UnnamedPad.this))
+                {
+                    delete();
+                }
+            }
+        },      600L);
+        final Block block = location.getBlock();
+        block.getRelative(BlockFace.EAST).setType(Material.STEP);
+        block.getRelative(BlockFace.WEST).setType(Material.STEP);
+        block.getRelative(BlockFace.NORTH).setType(Material.STEP);
+        block.getRelative(BlockFace.SOUTH).setType(Material.STEP);
+        block.getRelative(BlockFace.UP).setType(Material.WATER);
+        server.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() 
+        {
+            public void run() 
+            {
+                block.getRelative(BlockFace.UP).setType(Material.AIR);
+            }
+        }, 10L);
+        owner.sendMessage(ChatColor.GREEN + "You have just created a TravelPad!");
+        owner.sendMessage(ChatColor.GREEN + "Plaase use "+ChatColor.WHITE+"/travelpad name [name]"+ChatColor.GREEN+" to name this pad.");           
+    }
+    
+    /**
+     * Remove the pad from existence 
+     * This occurs naturally when a portal's time expires
      */            
     public void delete()
     {
+        config.removePad(this);
         owner.sendMessage(ChatColor.RED+"TravelPad expired because it was not named.");
         double returnValue = config.deleteAmount;
         if (returnValue != 0)
