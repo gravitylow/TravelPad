@@ -2,6 +2,7 @@ package net.h31ix.travelpad.api;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.h31ix.travelpad.LangManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -25,6 +26,7 @@ public class Pad {
     private boolean protect = false;
     List whitelist = null;   
     Configuration config = new Configuration();
+    LangManager l = new LangManager();
 
     public Pad(Location location, String owner, String name, boolean protect)
     {
@@ -146,7 +148,7 @@ public class Pad {
         Player player = Bukkit.getPlayer(owner);
         if (player != null)
         {
-            player.sendMessage(ChatColor.RED+"TravelPad "+ChatColor.WHITE+name+ChatColor.RED+" deleted");
+            player.sendMessage(ChatColor.RED+l.delete_approve()+ChatColor.WHITE+name);
             double returnValue = config.deleteAmount;
             if (returnValue != 0)
             {

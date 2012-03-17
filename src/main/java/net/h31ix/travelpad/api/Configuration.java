@@ -100,6 +100,7 @@ public class Configuration {
     public UnnamedPad[] getUnnamedPads()
     {
         List list = pads.getList("unv");
+        System.out.println(pads.getList("unv"));
         if (list == null || list.isEmpty())
         {
             return null;
@@ -127,8 +128,10 @@ public class Configuration {
             list = new ArrayList();
         }        
         list.add((int)loc.getX()+"/"+(int)loc.getY()+"/"+(int)loc.getZ()+"/"+loc.getWorld().getName()+"/"+pad.getOwner().getName());
+        System.out.println(list);
         pads.set("unv", list);
         save();
+        System.out.println(pads.getList("unv"));
     }
     
     public void addPad(Pad pad)
@@ -140,7 +143,7 @@ public class Configuration {
             list = new ArrayList();
         }            
         list.add(pad.getName()+"/"+(int)loc.getX()+"/"+(int)loc.getY()+"/"+(int)loc.getZ()+"/"+loc.getWorld().getName()+"/"+pad.getOwner());
-        pads.set("unv", list);
+        pads.set("pads", list);
         save();        
     }
     

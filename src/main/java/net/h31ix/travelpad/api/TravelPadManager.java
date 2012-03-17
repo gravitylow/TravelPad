@@ -170,7 +170,6 @@ public class TravelPadManager {
     public Set<UnnamedPad> getUnnamedPadsFrom(Player player)
     {
         update();
-        System.out.println(unvList.length);
         Set<UnnamedPad> set = new HashSet<UnnamedPad>();
         for(UnnamedPad pad : unvList)
         {

@@ -1,5 +1,6 @@
 package net.h31ix.travelpad.api;
 
+import net.h31ix.travelpad.LangManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -22,6 +23,7 @@ public class UnnamedPad {
     private Location location = null;
     private Player owner = null;
     Configuration config = new Configuration();
+    LangManager l = new LangManager();
 
     public UnnamedPad(Location location, Player owner)
     {
@@ -80,8 +82,8 @@ public class UnnamedPad {
                 block.getRelative(BlockFace.UP).setType(Material.AIR);
             }
         }, 10L);
-        owner.sendMessage(ChatColor.GREEN + "You have just created a TravelPad!");
-        owner.sendMessage(ChatColor.GREEN + "Plaase use "+ChatColor.WHITE+"/travelpad name [name]"+ChatColor.GREEN+" to name this pad.");           
+        owner.sendMessage(ChatColor.GREEN + l.create_approve_1());
+        owner.sendMessage(ChatColor.GREEN + l.create_approve_2());           
     }
  
     /**
@@ -100,7 +102,7 @@ public class UnnamedPad {
     public void delete()
     {
         config.removePad(this);
-        owner.sendMessage(ChatColor.RED+"TravelPad expired because it was not named.");      
+        owner.sendMessage(ChatColor.RED+l.pad_expire());      
         World world = location.getWorld();
         Block block = world.getBlockAt(location);
         block.setType(Material.AIR);

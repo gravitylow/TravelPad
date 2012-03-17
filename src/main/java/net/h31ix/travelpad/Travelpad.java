@@ -23,6 +23,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Travelpad extends JavaPlugin {
     public Configuration config;
     public TravelPadManager manager = new TravelPadManager();
+    public LangManager l = new LangManager();
     private Economy economy;
     
     @Override
@@ -44,6 +45,10 @@ public class Travelpad extends JavaPlugin {
                 Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        if (!new File("plugins/TravelPad/lang.yml").exists())
+        {
+            saveResource("lang.yml",false);
+        }        
         config = new Configuration();
         if (config.economyEnabled)
         {
@@ -123,7 +128,7 @@ public class Travelpad extends JavaPlugin {
             }
             if (found == false)
             {
-                player.sendMessage(ChatColor.RED+"You must have one "+s.getType().name().toLowerCase().replaceAll("_", "")+" to travel!");
+                player.sendMessage(ChatColor.RED+l.travel_deny_item()+s.getType().name().toLowerCase().replaceAll("_", ""));
                 tp = false;
             }
         }
@@ -135,14 +140,14 @@ public class Travelpad extends JavaPlugin {
             }
             else
             {
-                player.sendMessage(ChatColor.RED+"You cannot afford that!");
+                player.sendMessage(ChatColor.RED+l.travel_deny_money());
                 tp = false;
             }
         }
         if (take && tp)
         {
             player.getInventory().removeItem(s);
-            player.sendMessage(ChatColor.GOLD+"One "+s.getType().name().toLowerCase().replaceAll("_", "")+" has been collected from you for travel.");
+            player.sendMessage(ChatColor.GOLD+l.travel_approve_item()+s.getType().name().toLowerCase().replaceAll("_", ""));
         }
         if (tp)
         {
@@ -151,7 +156,7 @@ public class Travelpad extends JavaPlugin {
                 player.getWorld().playEffect(player.getLocation().add(getRandom(), getRandom(), getRandom()), Effect.SMOKE, 3);
             }
             player.teleport(loc);      
-            player.sendMessage(ChatColor.GREEN+"The wind rushes through your hair...");            
+            player.sendMessage(ChatColor.GREEN+l.travel_message());            
             for (int i=0;i!=32;i++)
             {
                 player.getWorld().playEffect(loc.add(getRandom(), getRandom(), getRandom()), Effect.SMOKE, 3);
@@ -164,7 +169,7 @@ public class Travelpad extends JavaPlugin {
         if (!player.hasPermission("travelpad.nopay"))
         {
             economy.withdrawPlayer(player.getName(), config.createAmount);
-            player.sendMessage(ChatColor.GOLD+"You were charged "+config.createAmount);
+            player.sendMessage(ChatColor.GOLD+l.charge_message()+config.createAmount);
         }
     }
     
@@ -174,7 +179,7 @@ public class Travelpad extends JavaPlugin {
         if (!player.hasPermission("travelpad.nopay"))
         {
             economy.withdrawPlayer(player.getName(), config.teleportAmount);
-            player.sendMessage(ChatColor.GOLD+"You were charged "+config.teleportAmount);
+            player.sendMessage(ChatColor.GOLD+l.charge_message()+config.teleportAmount);
         }
     }    
     
@@ -183,7 +188,7 @@ public class Travelpad extends JavaPlugin {
         if (!player.hasPermission("travelpad.nopay"))
         {        
             economy.depositPlayer(player.getName(), config.deleteAmount);
-            player.sendMessage(ChatColor.GOLD+"You were refunded "+config.deleteAmount);
+            player.sendMessage(ChatColor.GOLD+l.refund_message()+config.deleteAmount);
         }
     }    
     
@@ -240,13 +245,10 @@ public class Travelpad extends JavaPlugin {
         {
             Set<UnnamedPad> upads = manager.getUnnamedPadsFrom(player);
             if (!upads.isEmpty())
-            {     
+            {  
+                player.sendMessage(ChatColor.RED+l.create_deny_waiting());
                 return false;
             }   
-            else
-            {
-                player.sendMessage(ChatColor.RED+"You already have a pad waiting to be named...");
-            }
             int allow = config.getAllowedPads(player);
             Set<Pad> pads = manager.getPadsFrom(player);
             int has = 0;
@@ -260,7 +262,7 @@ public class Travelpad extends JavaPlugin {
             }
             else
             {
-                player.sendMessage(ChatColor.RED+"You already have "+has+" pads!");
+                player.sendMessage(ChatColor.RED+l.create_deny_max());
                 return false;
             }
         }
