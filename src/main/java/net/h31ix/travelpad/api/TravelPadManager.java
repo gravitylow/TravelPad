@@ -15,6 +15,22 @@ public class TravelPadManager {
         padList = config.getPads();
         unvList = config.getUnnamedPads();     
     }
+    /**
+     * Update the list of pads
+     */        
+    public void update()
+    {
+        padList = config.getPads();
+        unvList = config.getUnnamedPads();       
+        if (padList == null)
+        {
+            padList = new Pad[0];
+        }
+        if (unvList == null)
+        {
+            unvList = new UnnamedPad[0];
+        }        
+    }
     
     /**
      * Create a new, unnamed pad
@@ -24,6 +40,7 @@ public class TravelPadManager {
      */       
     public void createPad(Location location, Player player)
     {
+        update();
         new UnnamedPad(location,player).create();
     }
     
@@ -34,6 +51,7 @@ public class TravelPadManager {
      */     
     public void deletePad(UnnamedPad pad)
     {
+        update();
         pad.delete();
     }
     
@@ -44,6 +62,7 @@ public class TravelPadManager {
      */       
     public void deletePad(Pad pad)
     {
+        update();
         pad.delete();
     }
     
@@ -54,6 +73,7 @@ public class TravelPadManager {
      */       
     public boolean nameIsValid(String name)
     {
+        update();
         for(Pad pad : padList)
         {
             if (pad.getName().equalsIgnoreCase(name))
@@ -72,6 +92,7 @@ public class TravelPadManager {
      */       
     public Pad getPad(String name)
     {
+        update();
         for(Pad pad : padList)
         {
             if (pad.getName().equalsIgnoreCase(name))
@@ -90,6 +111,7 @@ public class TravelPadManager {
      */      
     public Pad getPadAt(Location location)
     {
+        update();
         for(Pad pad : padList)
         {
             if (pad.getLocation() == location)
@@ -108,6 +130,7 @@ public class TravelPadManager {
      */      
     public UnnamedPad getUnnamedPadAt(Location location)
     {
+        update();
         for(UnnamedPad pad : unvList)
         {
             if (pad.getLocation() == location)
@@ -126,6 +149,7 @@ public class TravelPadManager {
      */      
     public Set<Pad> getPadsFrom(Player player)
     {
+        update();
         Set<Pad> set = new HashSet<Pad>();
         for(Pad pad : padList)
         {
@@ -145,6 +169,8 @@ public class TravelPadManager {
      */        
     public Set<UnnamedPad> getUnnamedPadsFrom(Player player)
     {
+        update();
+        System.out.println(unvList.length);
         Set<UnnamedPad> set = new HashSet<UnnamedPad>();
         for(UnnamedPad pad : unvList)
         {
@@ -163,6 +189,7 @@ public class TravelPadManager {
      */        
     public Set<Pad> getPads()
     {
+        update();
         Set<Pad> pads = new HashSet<Pad>();
         for(Pad pad : padList)
         {
@@ -178,6 +205,7 @@ public class TravelPadManager {
      */       
     public Set<UnnamedPad> getUnnamedPads()
     {
+        update();
         Set<UnnamedPad> pads = new HashSet<UnnamedPad>();
         for(UnnamedPad pad : unvList)
         {

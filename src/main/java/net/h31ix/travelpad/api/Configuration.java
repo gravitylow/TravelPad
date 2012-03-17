@@ -2,6 +2,7 @@ package net.h31ix.travelpad.api;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -10,6 +11,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 
 public class Configuration {
     
@@ -76,6 +78,10 @@ public class Configuration {
     public Pad[] getPads()
     {
         List list = pads.getList("pads");
+        if (list == null)
+        {
+            return null;
+        }
         Pad[] padList = new Pad[list.size()];
         for(int i=0;i<list.size();i++)
         {
@@ -93,7 +99,11 @@ public class Configuration {
     
     public UnnamedPad[] getUnnamedPads()
     {
-        List list = pads.getList("pads");
+        List list = pads.getList("unv");
+        if (list == null || list.isEmpty())
+        {
+            return null;
+        }      
         UnnamedPad[] padList = new UnnamedPad[list.size()];
         for(int i=0;i<list.size();i++)
         {
@@ -112,6 +122,10 @@ public class Configuration {
     {
         Location loc = pad.getLocation();
         List list = pads.getList("unv");
+        if (list == null)
+        {
+            list = new ArrayList();
+        }        
         list.add((int)loc.getX()+"/"+(int)loc.getY()+"/"+(int)loc.getZ()+"/"+loc.getWorld().getName()+"/"+pad.getOwner().getName());
         pads.set("unv", list);
         save();
@@ -121,14 +135,42 @@ public class Configuration {
     {
         Location loc = pad.getLocation();
         List list = pads.getList("pads");
+        if (list == null)
+        {
+            list = new ArrayList();
+        }            
         list.add(pad.getName()+"/"+(int)loc.getX()+"/"+(int)loc.getY()+"/"+(int)loc.getZ()+"/"+loc.getWorld().getName()+"/"+pad.getOwner());
         pads.set("unv", list);
         save();        
     }
     
+    public int getAllowedPads(Player player)
+    {
+        if (player.hasPermission("travelpad.infinite"))
+        {
+            return -1;
+        }
+        else
+        {
+            String s = config.getString("Player Options."+player.getName().toLowerCase()+".Max");
+            if (s != null)
+            {
+                return Integer.parseInt(s);
+            }
+            else
+            {
+                return 1;
+            }
+        }
+    }
+    
     public boolean isUnv(UnnamedPad pad)
     {
         List list = pads.getList("unv");
+        if (list == null)
+        {
+            return false;
+        }            
         Location loc = pad.getLocation();
         if (list.contains((int)loc.getX()+"/"+(int)loc.getY()+"/"+(int)loc.getZ()+"/"+loc.getWorld().getName()+"/"+pad.getOwner().getName()))
         {
@@ -144,6 +186,10 @@ public class Configuration {
     {
         Location loc = pad.getLocation();
         List list = pads.getList("unv");
+        if (list == null)
+        {
+            list = new ArrayList();
+        }         
         list.remove((int)loc.getX()+"/"+(int)loc.getY()+"/"+(int)loc.getZ()+"/"+loc.getWorld().getName()+"/"+pad.getOwner().getName());
         pads.set("unv", list);
         save();        
@@ -152,7 +198,11 @@ public class Configuration {
     public void removePad(Pad pad)
     {
         Location loc = pad.getLocation();
-        List list = pads.getList("unv");
+        List list = pads.getList("pads");
+        if (list == null)
+        {
+            list = new ArrayList();
+        }         
         list.remove((int)loc.getX()+"/"+(int)loc.getY()+"/"+(int)loc.getZ()+"/"+loc.getWorld().getName()+"/"+pad.getOwner());
         pads.set("unv", list);
         save();        

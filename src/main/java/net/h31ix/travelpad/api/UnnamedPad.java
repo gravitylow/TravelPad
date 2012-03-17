@@ -83,20 +83,24 @@ public class UnnamedPad {
         owner.sendMessage(ChatColor.GREEN + "You have just created a TravelPad!");
         owner.sendMessage(ChatColor.GREEN + "Plaase use "+ChatColor.WHITE+"/travelpad name [name]"+ChatColor.GREEN+" to name this pad.");           
     }
+ 
+    /**
+     * Remove the pad "gracefully" (no blocks dropping)
+     * This occurs naturally when a pad is named
+     */     
+    public void name()
+    {
+        config.removePad(this);
+    }
     
     /**
      * Remove the pad from existence 
-     * This occurs naturally when a portal's time expires
+     * This occurs naturally when a pad is named
      */            
     public void delete()
     {
         config.removePad(this);
-        owner.sendMessage(ChatColor.RED+"TravelPad expired because it was not named.");
-        double returnValue = config.deleteAmount;
-        if (returnValue != 0)
-        {
-            //globals.refund(owner);
-        }        
+        owner.sendMessage(ChatColor.RED+"TravelPad expired because it was not named.");      
         World world = location.getWorld();
         Block block = world.getBlockAt(location);
         block.setType(Material.AIR);
