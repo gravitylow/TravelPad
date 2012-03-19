@@ -57,7 +57,7 @@ public class TravelPadCommandExecutor implements CommandExecutor {
                             if (plugin.hasPad(player))
                             {
                                 Object[] pads = manager.getPadsFrom(player).toArray();
-                                ((Pad)pads[0]).delete();
+                                manager.deletePad((Pad)pads[0]);
                             }
                             else
                             {

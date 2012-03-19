@@ -2,7 +2,7 @@ package net.h31ix.travelpad;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Set;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.h31ix.travelpad.api.Configuration;
@@ -22,9 +22,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class Travelpad extends JavaPlugin {
     public Configuration config;
-    public TravelPadManager manager = new TravelPadManager();
+    public TravelPadManager manager = new TravelPadManager(this);
     public LangManager l = new LangManager();
     private Economy economy;
+    
     
     @Override
     public void onDisable() {
@@ -65,7 +66,7 @@ public class Travelpad extends JavaPlugin {
             Object[] pads = manager.getUnnamedPadsFrom(player).toArray();
             UnnamedPad pad = ((UnnamedPad)pads[0]);
             config.addPad(new Pad(pad.getLocation(), player.getName(), name, false));
-            pad.name();
+            manager.switchPad(pad,name);
             return true;
         }
         else
@@ -76,7 +77,7 @@ public class Travelpad extends JavaPlugin {
     
     public boolean hasPad(Player player)
     {
-        Set<Pad> pads = manager.getPadsFrom(player);
+        List<Pad> pads = manager.getPadsFrom(player);
         if (pads != null)    
         {
             return true;
@@ -229,7 +230,7 @@ public class Travelpad extends JavaPlugin {
     
     public int getPads(Player player)
     {
-        Set<Pad> pads = manager.getPadsFrom(player);
+        List<Pad> pads = manager.getPadsFrom(player);
         int has = 0;
         if (pads != null)
         {
@@ -243,14 +244,14 @@ public class Travelpad extends JavaPlugin {
         //TODO: ADD ECONOMY CHECKS
         if (player.hasPermission("travelpad.create"))
         {
-            Set<UnnamedPad> upads = manager.getUnnamedPadsFrom(player);
+            List<UnnamedPad> upads = manager.getUnnamedPadsFrom(player);
             if (!upads.isEmpty())
             {  
                 player.sendMessage(ChatColor.RED+l.create_deny_waiting());
                 return false;
             }   
             int allow = config.getAllowedPads(player);
-            Set<Pad> pads = manager.getPadsFrom(player);
+            List<Pad> pads = manager.getPadsFrom(player);
             int has = 0;
             if (pads != null)
             {

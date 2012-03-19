@@ -34,10 +34,14 @@ public class Configuration {
     
     public boolean economyEnabled = false;
     
+    private List<Pad> padList;
+    private List<UnnamedPad> unvList;
+    
     public Configuration()
     {
         pads = YamlConfiguration.loadConfiguration(padsFile);
-        config = YamlConfiguration.loadConfiguration(configFile);   
+        config = YamlConfiguration.loadConfiguration(configFile);  
+        load();
         requireItem = config.getBoolean("Teleportation Options.Require item");
         if (requireItem)
         {
@@ -65,86 +69,14 @@ public class Configuration {
         }         
     }
     
-    public void save()
+    public List getPads()
     {
-        try {
-            pads.save(padsFile);
-            config.save(configFile);
-        } catch (IOException ex) {
-            Logger.getLogger(Configuration.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-    public Pad[] getPads()
-    {
-        List list = pads.getList("pads");
-        if (list == null)
-        {
-            return null;
-        }
-        Pad[] padList = new Pad[list.size()];
-        for(int i=0;i<list.size();i++)
-        {
-            String [] pad = ((String)list.get(i)).split("/");
-            String name = pad[0];
-            double x = Integer.parseInt(pad[1]);
-            double y = Integer.parseInt(pad[2]);
-            double z = Integer.parseInt(pad[3]);
-            World world = Bukkit.getServer().getWorld(pad[4]);
-            String player = pad[5];
-            padList[i] = (new Pad(new Location(world,x,y,z),player,name,false));
-        }
         return padList;
     }
     
-    public UnnamedPad[] getUnnamedPads()
+    public List getUnnamedPads()
     {
-        List list = pads.getList("unv");
-        System.out.println(pads.getList("unv"));
-        if (list == null || list.isEmpty())
-        {
-            return null;
-        }      
-        UnnamedPad[] padList = new UnnamedPad[list.size()];
-        for(int i=0;i<list.size();i++)
-        {
-            String [] pad = ((String)list.get(i)).split("/");
-            double x = Integer.parseInt(pad[0]);
-            double y = Integer.parseInt(pad[1]);
-            double z = Integer.parseInt(pad[2]);
-            World world = Bukkit.getServer().getWorld(pad[3]);
-            String player = pad[4];
-            padList[i] = (new UnnamedPad(new Location(world,x,y,z),Bukkit.getServer().getPlayer(player)));
-        }
-        return padList;
-    }    
-    
-    public void addUnv(UnnamedPad pad)
-    {
-        Location loc = pad.getLocation();
-        List list = pads.getList("unv");
-        if (list == null)
-        {
-            list = new ArrayList();
-        }        
-        list.add((int)loc.getX()+"/"+(int)loc.getY()+"/"+(int)loc.getZ()+"/"+loc.getWorld().getName()+"/"+pad.getOwner().getName());
-        System.out.println(list);
-        pads.set("unv", list);
-        save();
-        System.out.println(pads.getList("unv"));
-    }
-    
-    public void addPad(Pad pad)
-    {
-        Location loc = pad.getLocation();
-        List list = pads.getList("pads");
-        if (list == null)
-        {
-            list = new ArrayList();
-        }            
-        list.add(pad.getName()+"/"+(int)loc.getX()+"/"+(int)loc.getY()+"/"+(int)loc.getZ()+"/"+loc.getWorld().getName()+"/"+pad.getOwner());
-        pads.set("pads", list);
-        save();        
+        return unvList;
     }
     
     public int getAllowedPads(Player player)
@@ -169,46 +101,106 @@ public class Configuration {
     
     public boolean isUnv(UnnamedPad pad)
     {
-        List list = pads.getList("unv");
-        if (list == null)
+        for(UnnamedPad upad : unvList)
         {
-            return false;
-        }            
-        Location loc = pad.getLocation();
-        if (list.contains((int)loc.getX()+"/"+(int)loc.getY()+"/"+(int)loc.getZ()+"/"+loc.getWorld().getName()+"/"+pad.getOwner().getName()))
-        {
-            return true;
+            System.out.println("Checking pad by "+upad.getOwner().getName());
+            if (upad.getOwner().equals(pad.getOwner()))
+            {
+                return true;
+            }
         }
-        else
-        {
-            return false;
-        }
+        return false;
     }
     
-    public void removePad(UnnamedPad pad)
+    public void addUnv(UnnamedPad pad)
     {
-        Location loc = pad.getLocation();
-        List list = pads.getList("unv");
-        if (list == null)
-        {
-            list = new ArrayList();
-        }         
-        list.remove((int)loc.getX()+"/"+(int)loc.getY()+"/"+(int)loc.getZ()+"/"+loc.getWorld().getName()+"/"+pad.getOwner().getName());
-        pads.set("unv", list);
-        save();        
+        unvList.add(pad);
+        save();
+    }
+    
+    public void addPad(Pad pad)
+    {
+        padList.add(pad);
+        save();
     }
     
     public void removePad(Pad pad)
     {
-        Location loc = pad.getLocation();
+        padList.remove(pad);
+        save();
+    }
+    
+    public void removePad(UnnamedPad pad)
+    {
+        unvList.remove(pad);
+        save();
+    }
+    
+    public void load()
+    {
         List list = pads.getList("pads");
-        if (list == null)
+        padList = new ArrayList<Pad>();
+        if (list != null)
         {
-            list = new ArrayList();
-        }         
-        list.remove((int)loc.getX()+"/"+(int)loc.getY()+"/"+(int)loc.getZ()+"/"+loc.getWorld().getName()+"/"+pad.getOwner());
-        pads.set("unv", list);
-        save();        
-    }    
-       
+            for (int i=0;i<list.size();i++)
+            {
+                String [] pad = ((String)list.get(i)).split("/");
+                String name = pad[0];
+                double x = Integer.parseInt(pad[1]);
+                double y = Integer.parseInt(pad[2]);
+                double z = Integer.parseInt(pad[3]);
+                World world = Bukkit.getServer().getWorld(pad[4]);
+                String player = pad[5];
+                boolean protect = Boolean.parseBoolean(pad[6]);
+                padList.add(new Pad(new Location(world,x,y,z),player,name,protect));
+            }      
+        }
+        list = pads.getList("unv");
+        unvList = new ArrayList<UnnamedPad>();
+        if (list != null)
+        {
+            for (int i=0;i<list.size();i++)
+            {
+                String [] pad = ((String)list.get(i)).split("/");
+                double x = Integer.parseInt(pad[0]);
+                double y = Integer.parseInt(pad[1]);
+                double z = Integer.parseInt(pad[2]);
+                World world = Bukkit.getServer().getWorld(pad[3]);
+                String player = pad[4];
+                unvList.add(new UnnamedPad(new Location(world,x,y,z),Bukkit.getPlayer(player)));
+            }      
+        }   
+    }
+    
+    public void save()
+    {
+        if (!padList.isEmpty())
+        {
+            List padListString = new ArrayList<String>();
+            for (int i=0;i<padList.size();i++)
+            {
+                Pad pad = (Pad)padList.get(i);
+                Location loc = pad.getLocation();
+                padListString.add(pad.getName()+"/"+(int)loc.getX()+"/"+(int)loc.getY()+"/"+(int)loc.getZ()+"/"+loc.getWorld().getName()+"/"+pad.getOwner()+"/"+pad.isWhitelisted());
+            }
+            pads.set("pads", padListString);
+        }
+        if (!unvList.isEmpty())
+        {
+            List padListString = new ArrayList<String>();
+            for (int i=0;i<unvList.size();i++)
+            {
+                UnnamedPad pad = (UnnamedPad)unvList.get(i);
+                Location loc = pad.getLocation();
+                padListString.add((int)loc.getX()+"/"+(int)loc.getY()+"/"+(int)loc.getZ()+"/"+loc.getWorld().getName()+"/"+pad.getOwner().getName());
+            }
+            pads.set("unv", padListString);
+        } 
+        try {
+            pads.save(padsFile);
+        } catch (IOException ex) {
+            Logger.getLogger(Configuration.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        load();
+    }
 }
