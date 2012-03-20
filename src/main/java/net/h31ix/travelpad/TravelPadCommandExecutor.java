@@ -82,8 +82,22 @@ public class TravelPadCommandExecutor implements CommandExecutor {
                         {
                             if (plugin.doesPadExist(args[1]))
                             {
-                                Location loc = manager.getPad(args[1]).getTeleportLocation();
-                                plugin.teleport(player, loc);
+                                if (plugin.canTeleport(player))
+                                {
+                                    if (plugin.isWhitelisted(player, pad))
+                                    {
+                                        Location loc = manager.getPad(args[1]).getTeleportLocation();
+                                        plugin.teleport(player, loc);
+                                    }
+                                    else
+                                    {
+                                        player.sendMessage(ChatColor.RED+"You are not whitelisted!");
+                                    }
+                                }
+                                else
+                                {
+                                    player.sendMessage(ChatColor.RED+"Not enough money!");
+                                }
                             }
                             else
                             {
@@ -146,6 +160,62 @@ public class TravelPadCommandExecutor implements CommandExecutor {
                         player.sendMessage(ChatColor.RED+l.command_deny_permission());
                     }                    
                 }
+            }
+            else if (args.length == 3)
+            {
+                if (args[0].equalsIgnoreCase(l.command_whitelist()) || args[0].equalsIgnoreCase(l.command_whitelist_shortcut()))
+                {
+                    if (plugin.doesPadExist(args[1]))
+                    {
+                        Pad pad = manager.getPad(args[1]);
+                        if (args[2].equalsIgnoreCase("on"))
+                        {
+                            pad.setWhitelisted(true); 
+                            player.sendMessage(ChatColor.GREEN+"Whitelist -> on");
+                        }
+                        else if (args[2].equalsIgnoreCase("off"))
+                        {
+                            pad.setWhitelisted(false); 
+                            player.sendMessage(ChatColor.RED+"Whitelist -> off");
+                        }
+                        else
+                        {
+                            pad.addWhitelist(args[2]);
+                            player.sendMessage(ChatColor.GREEN+"Added "+args[2]);
+                        }
+                    } 
+                    else
+                    {
+                        player.sendMessage(ChatColor.RED+l.delete_deny_notfound());
+                    }
+                }
+                if (args[0].equalsIgnoreCase(l.command_unwhitelist()) || args[0].equalsIgnoreCase(l.command_unwhitelist_shortcut()))
+                {
+                    if (plugin.doesPadExist(args[1]))
+                    {
+                        Pad pad = manager.getPad(args[1]);
+                        if (pad.isWhitelisted())
+                        {
+                            boolean b = pad.removeWhitelist(args[2]);
+                            if (b)
+                            {
+                                player.sendMessage(ChatColor.GREEN+"Removed "+args[2]);
+                            }
+                            else
+                            {
+                                player.sendMessage(ChatColor.RED+"Not whitelisted!");
+                            }
+                        }
+                        else
+                        {
+                            player.sendMessage(ChatColor.RED+"Whitelist not on.");
+                        }
+                    } 
+                    else
+                    {
+                        player.sendMessage(ChatColor.RED+l.delete_deny_notfound());
+                    }
+                }                
             }
             else
             {

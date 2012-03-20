@@ -1,5 +1,7 @@
 package net.h31ix.travelpad;
 
+import com.massivecraft.factions.Faction;
+import com.massivecraft.factions.Factions;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -125,6 +127,20 @@ public class Travelpad extends JavaPlugin {
         }
     }
     
+    /**public boolean addFactions(String tag, Pad pad)
+    {
+        Factions factions = (Factions) this.getServer().getPluginManager().getPlugin("Factions");     
+        Faction fac = factions.getByTag(tag);
+        if (fac == null)
+        {
+            return false;
+        }
+        else
+        {
+            pad.add
+        }
+    }*/
+    
     public double getRandom()
     {       
         int x = (int)(2*Math.random())+1;
@@ -228,7 +244,26 @@ public class Travelpad extends JavaPlugin {
             economy.depositPlayer(player.getName(), config.deleteAmount);
             player.sendMessage(ChatColor.GOLD+l.refund_message()+config.deleteAmount);
         }
-    }    
+    }   
+    
+    public boolean isWhitelisted(Player player, Pad pad)
+    {
+        if (!pad.isWhitelisted())
+        {
+            return true;
+        }
+        else
+        {
+            for(String s : (List<String>)pad.getWhitelist())
+            {
+                if (s.equalsIgnoreCase(player.getName()))
+                {
+                    return true;
+                }
+            }  
+            return false;
+        }
+    }
     
     public boolean canTeleport(Player player)
     {

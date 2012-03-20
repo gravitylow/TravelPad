@@ -1,5 +1,6 @@
 package net.h31ix.travelpad.api;
 
+import com.massivecraft.factions.Faction;
 import java.util.ArrayList;
 import java.util.List;
 import org.bukkit.Location;
@@ -15,7 +16,8 @@ public class Pad {
     private String owner = null;
     private String name = null;
     private boolean protect = false;
-    List whitelist = null;   
+    private List<String> whitelist = null;   
+    private Faction faction;
 
     public Pad(Location location, String owner, String name, boolean protect)
     {
@@ -124,8 +126,59 @@ public class Pad {
     {
         if (whitelist == null)
         {
-            whitelist = new ArrayList();
+            whitelist = new ArrayList<String>();
         }
         whitelist.add(player);
+    }
+    
+    /**
+     * Remove a player from the whitelist
+     *
+     * @param  player  Player to be removed
+     * @return True if player is removed, false if not on list
+     */        
+    public boolean removeWhitelist(String player)
+    {
+        if (whitelist == null)
+        {
+            whitelist = new ArrayList<String>();
+        }
+        for(String s : whitelist)
+        {
+            if (s.equalsIgnoreCase(player))
+            {
+                whitelist.remove(s);
+                return true;
+            }
+        }
+        return false;
+    } 
+    
+    /**
+     * Find if a player is on the whitelist.
+     *
+     * @param  player  Player to be checked
+     * @return True if whitelisted, false if not.
+     */     
+    public boolean isOnWhitelist(String player)
+    {
+        for(String s : whitelist)
+        {
+            if (s.equalsIgnoreCase(player))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public void setFaction(Faction faction)
+    {
+        this.faction = faction;
+    }
+    
+    public Faction getFaction()
+    {
+        return faction;
     }
 }

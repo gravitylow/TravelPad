@@ -145,7 +145,27 @@ public class LangManager {
     public String command_name_shortcut()
     {
         return lang.getString("command_name_shortcut");
-    }        
+    }     
+    
+    public String command_whitelist()
+    {
+        return lang.getString("command_whitelist");
+    }    
+    
+    public String command_whitelist_shortcut()
+    {
+        return lang.getString("command_whitelist_shortcut");
+    } 
+    
+    public String command_unwhitelist()
+    {
+        return lang.getString("command_unwhitelist");
+    }    
+    
+    public String command_unwhitelist_shortcut()
+    {
+        return lang.getString("command_unwhitelist_shortcut");
+    }     
     
     public String create_approve_1()
     {

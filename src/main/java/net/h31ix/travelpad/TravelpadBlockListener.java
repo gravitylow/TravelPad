@@ -11,8 +11,10 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 
 public class TravelPadBlockListener implements Listener {
     
@@ -25,6 +27,26 @@ public class TravelPadBlockListener implements Listener {
         this.plugin = plugin;
         manager = plugin.manager;
         l = plugin.l;
+    }
+    
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event)
+    {
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK)
+        {
+            Block block = event.getClickedBlock();
+            if (block.getType() == Material.OBSIDIAN)
+            {
+                if (block.getRelative(BlockFace.EAST).getType() == Material.BRICK && block.getRelative(BlockFace.WEST).getType() == Material.BRICK && block.getRelative(BlockFace.NORTH).getType() == Material.BRICK && block.getRelative(BlockFace.SOUTH).getType() == Material.BRICK)
+                {
+                    Player player = event.getPlayer();
+                    if (plugin.canCreate(player))
+                    {
+                        manager.createPad(block.getLocation(), player);
+                    }
+                }
+            }
+        }
     }
     
     @EventHandler

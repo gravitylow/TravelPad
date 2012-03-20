@@ -169,7 +169,12 @@ public class Configuration {
                 World world = Bukkit.getServer().getWorld(pad[4]);
                 String player = pad[5];
                 boolean protect = Boolean.parseBoolean(pad[6]);
-                padList.add(new Pad(new Location(world,x,y,z),player,name,protect));
+                Pad pad2 = new Pad(new Location(world,x,y,z),player,name,protect);
+                if (protect)
+                {
+                    pad2.setWhitelist(pads.getList("Pad Options."+pad2.getName()+".Whitelist"));
+                }                
+                padList.add(pad2);
             }      
         }
         list = pads.getList("unv");
@@ -197,6 +202,10 @@ public class Configuration {
             Pad pad = (Pad)padList.get(i);
             Location loc = pad.getLocation();
             padListString.add(pad.getName()+"/"+(int)loc.getX()+"/"+(int)loc.getY()+"/"+(int)loc.getZ()+"/"+loc.getWorld().getName()+"/"+pad.getOwner()+"/"+pad.isWhitelisted());
+            if (pad.isWhitelisted())
+            {
+                pads.set("Pad Options."+pad.getName()+".Whitelist", pad.getWhitelist());
+            }
         }
         pads.set("pads", padListString);
         padListString = new ArrayList<String>();

@@ -39,6 +39,10 @@ command_teleport: teleport
 command_teleport_shortcut: tp
 command_name: name
 command_name_shortcut: n
+command_whitelist: whitelist
+command_whitelist_shortcut: w
+command_unwhitelist: unwhitelist
+command_unwhitelist_shortcut: u
 
 
 
