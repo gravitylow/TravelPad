@@ -179,7 +179,7 @@ public class LangManager {
     
     public String command_deny_console()
     {
-        return lang.getString("create_approve_2");
+        return lang.getString("command_deny_console");
     }     
     
     public String pad_expire()

@@ -141,11 +141,6 @@ public class TravelPadManager {
         if (player != null)
         {
             player.sendMessage(ChatColor.RED+l.delete_approve()+" "+ChatColor.WHITE+pad.getName());
-            double returnValue = config.deleteAmount;
-            if (returnValue != 0)
-            {
-                //globals.refund(owner);
-            }        
         }
         Location location = pad.getLocation();
         World world = location.getWorld();

@@ -51,22 +51,15 @@ public class TravelPadCommandExecutor implements CommandExecutor {
                         player.sendMessage(ChatColor.RED+l.delete_deny_multi());
                     }
                     else
-                    {
-                        if (player.hasPermission("travelpad.delete"))
-                        {                       
-                            if (plugin.hasPad(player))
-                            {
-                                Object[] pads = manager.getPadsFrom(player).toArray();
-                                manager.deletePad((Pad)pads[0]);
-                            }
-                            else
-                            {
-                                player.sendMessage(ChatColor.RED+l.delete_deny_noportal());
-                            }
+                    {               
+                        if (plugin.hasPad(player))
+                        {
+                            Object[] pads = manager.getPadsFrom(player).toArray();
+                            manager.deletePad((Pad)pads[0]);
                         }
                         else
                         {
-                            player.sendMessage(ChatColor.RED+l.command_deny_permission());
+                            player.sendMessage(ChatColor.RED+l.delete_deny_noportal());
                         }
                     }
                 }
@@ -116,39 +109,46 @@ public class TravelPadCommandExecutor implements CommandExecutor {
                 }  
                 else if (args[0].equalsIgnoreCase(l.command_name()) || args[0].equalsIgnoreCase(l.command_name_shortcut()))
                 {
-                    if (player.hasPermission("travelpad.name"))
+                    if (manager.nameIsValid(args[1]))
                     {
-                        if (manager.nameIsValid(args[1]))
+                        String name = args[1];
+                        boolean set = plugin.namePad(player, name);
+                        if (set)
                         {
-                            String name = args[1];
-                            boolean set = plugin.namePad(player, name);
-                            if (set)
-                            {
-                                player.sendMessage(ChatColor.GREEN+l.name_message()+ChatColor.WHITE+" "+name);
-                            }
-                            else
-                            {
-                                player.sendMessage(ChatColor.RED+l.name_deny_nopad());
-                            }
+                            player.sendMessage(ChatColor.GREEN+l.name_message()+ChatColor.WHITE+" "+name);
                         }
                         else
                         {
-                            player.sendMessage(ChatColor.RED+l.name_deny_inuse());
+                            player.sendMessage(ChatColor.RED+l.name_deny_nopad());
                         }
                     }
                     else
                     {
-                        player.sendMessage(ChatColor.RED+l.command_deny_permission());
-                    }                    
+                        player.sendMessage(ChatColor.RED+l.name_deny_inuse());
+                    }                  
                 }
                 else if (args[0].equalsIgnoreCase(l.command_delete()) || args[0].equalsIgnoreCase(l.command_delete_shortcut()))
                 {
-                    if (player.hasPermission("travelpad.delete.all") || player.hasPermission("travelpad.delete.any"))
+                    if (player.hasPermission("travelpad.delete.all") || player.hasPermission("travelpad.delete.any") || manager.getPadsFrom(player).size() > 1)
                     {
                         if (plugin.doesPadExist(args[1]))
                         {
-                            manager.deletePad(manager.getPad(args[1]));
-                            player.sendMessage(ChatColor.GREEN+l.delete_approve()+" "+ChatColor.WHITE+args[1]);
+                            if (!manager.getPad(args[1]).getOwner().equalsIgnoreCase(player.getName()))
+                            {
+                                if (player.hasPermission("travelpad.delete.all") || player.hasPermission("travelpad.delete.any"))
+                                {
+                                    manager.deletePad(manager.getPad(args[1]));
+                                }
+                                else
+                                {
+                                    player.sendMessage(ChatColor.RED+l.delete_deny_notfound());
+                                }
+                            }
+                            else
+                            {
+                                    manager.deletePad(manager.getPad(args[1]));
+                                    player.sendMessage(ChatColor.GREEN+l.delete_approve()+" "+ChatColor.WHITE+args[1]);
+                            }
                         }
                         else
                         {

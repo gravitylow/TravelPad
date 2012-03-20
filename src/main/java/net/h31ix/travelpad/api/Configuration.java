@@ -103,7 +103,7 @@ public class Configuration {
     {
         for(UnnamedPad upad : unvList)
         {
-            if (upad.getOwner().equals(pad.getOwner()))
+            if (upad.getOwner().equals(pad.getOwner()) && upad.getLocation().equals(pad.getLocation()))
             {
                 return true;
             }

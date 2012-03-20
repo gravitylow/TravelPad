@@ -42,7 +42,7 @@ public class TravelPadBlockListener implements Listener {
                     Player player = event.getPlayer();
                     if (plugin.canCreate(player))
                     {
-                        manager.createPad(block.getLocation(), player);
+                        plugin.create(block.getLocation(), player);
                     }
                 }
             }
@@ -69,7 +69,7 @@ public class TravelPadBlockListener implements Listener {
                     Player player = event.getPlayer();
                     if (plugin.canCreate(player))
                     {
-                        manager.createPad(block.getLocation(), player);
+                        plugin.create(block.getLocation(), player);
                     }
                 }
             }
@@ -89,7 +89,7 @@ public class TravelPadBlockListener implements Listener {
             {
                 if (pad.getOwner().equalsIgnoreCase(player.getName()))
                 {
-                    manager.deletePad(pad);
+                    plugin.delete(pad);
                 }
                 else
                 {
