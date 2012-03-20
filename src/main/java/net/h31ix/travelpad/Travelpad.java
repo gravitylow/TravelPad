@@ -152,16 +152,31 @@ public class Travelpad extends JavaPlugin {
         return e;
     }
     
+    public void delete(Pad pad)
+    {
+        double returnValue = config.deleteAmount;
+        if (returnValue != 0)
+        {
+            refund(getServer().getPlayer(pad.getOwner()));
+        }        
+        manager.deletePad(pad);
+    }
+    
+    public void create(Location location, Player player)
+    {
+        double createValue = config.createAmount;
+        if (createValue != 0)
+        {
+            charge(player);
+        }        
+        manager.createPad(location, player);       
+    }
+    
     public void teleport(Player player, Location loc)
     {
         boolean tp = true;
         boolean take = false;
         boolean found = false;
-        boolean fac = true;
-        if (getServer().getPluginManager().getPlugin("Factions") != null)
-        {
-            //if ()
-        }
         ItemStack s = null;
         if (config.requireItem)
         {
@@ -182,7 +197,7 @@ public class Travelpad extends JavaPlugin {
             }
             if (found == false)
             {
-                player.sendMessage(ChatColor.RED+l.travel_deny_item()+s.getType().name().toLowerCase().replaceAll("_", ""));
+                player.sendMessage(ChatColor.RED+l.travel_deny_item()+" "+s.getType().name().toLowerCase().replaceAll("_", ""));
                 tp = false;
             }
         }
@@ -201,7 +216,7 @@ public class Travelpad extends JavaPlugin {
         if (take && tp)
         {
             player.getInventory().removeItem(s);
-            player.sendMessage(ChatColor.GOLD+l.travel_approve_item()+s.getType().name().toLowerCase().replaceAll("_", ""));
+            player.sendMessage(ChatColor.GOLD+s.getType().name().toLowerCase().replaceAll("_", "")+" "+l.travel_approve_item());
         }
         if (tp)
         {
@@ -223,7 +238,7 @@ public class Travelpad extends JavaPlugin {
         if (!player.hasPermission("travelpad.nopay"))
         {
             economy.withdrawPlayer(player.getName(), config.createAmount);
-            player.sendMessage(ChatColor.GOLD+l.charge_message()+config.createAmount);
+            player.sendMessage(ChatColor.GOLD+l.charge_message()+" "+config.createAmount);
         }
     }
     
@@ -233,7 +248,7 @@ public class Travelpad extends JavaPlugin {
         if (!player.hasPermission("travelpad.nopay"))
         {
             economy.withdrawPlayer(player.getName(), config.teleportAmount);
-            player.sendMessage(ChatColor.GOLD+l.charge_message()+config.teleportAmount);
+            player.sendMessage(ChatColor.GOLD+l.charge_message()+" "+config.teleportAmount);
         }
     }    
     
@@ -242,7 +257,7 @@ public class Travelpad extends JavaPlugin {
         if (!player.hasPermission("travelpad.nopay"))
         {        
             economy.depositPlayer(player.getName(), config.deleteAmount);
-            player.sendMessage(ChatColor.GOLD+l.refund_message()+config.deleteAmount);
+            player.sendMessage(ChatColor.GOLD+l.refund_message()+" "+config.deleteAmount);
         }
     }   
     
@@ -313,7 +328,6 @@ public class Travelpad extends JavaPlugin {
     
     public boolean canCreate(Player player)
     {
-        //TODO: ADD ECONOMY CHECKS
         if (player.hasPermission("travelpad.create"))
         {
             List<UnnamedPad> upads = manager.getUnnamedPadsFrom(player);
@@ -341,6 +355,7 @@ public class Travelpad extends JavaPlugin {
         }
         else
         {
+            player.sendMessage(ChatColor.RED+l.command_deny_permission());
            return false; 
         }
     }
