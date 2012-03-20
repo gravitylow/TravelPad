@@ -103,7 +103,6 @@ public class Configuration {
     {
         for(UnnamedPad upad : unvList)
         {
-            System.out.println("Checking pad by "+upad.getOwner().getName());
             if (upad.getOwner().equals(pad.getOwner()))
             {
                 return true;
@@ -126,13 +125,31 @@ public class Configuration {
     
     public void removePad(Pad pad)
     {
-        padList.remove(pad);
+        List<Pad> tempList = padList;
+        Pad found = null;
+        for (Pad upad : tempList)
+        {
+            if (upad.getLocation().equals(pad.getLocation()))
+            {
+                found = upad;
+            }
+        }
+        padList.remove(found);
         save();
     }
     
     public void removePad(UnnamedPad pad)
     {
-        unvList.remove(pad);
+        List<UnnamedPad> tempList = unvList;
+        UnnamedPad found = null;
+        for (UnnamedPad upad : tempList)
+        {
+            if (upad.getOwner().equals(pad.getOwner()))
+            {
+                found = upad;
+            }
+        }
+        unvList.remove(found);
         save();
     }
     
@@ -174,28 +191,22 @@ public class Configuration {
     
     public void save()
     {
-        if (!padList.isEmpty())
+        List padListString = new ArrayList<String>();
+        for (int i=0;i<padList.size();i++)
         {
-            List padListString = new ArrayList<String>();
-            for (int i=0;i<padList.size();i++)
-            {
-                Pad pad = (Pad)padList.get(i);
-                Location loc = pad.getLocation();
-                padListString.add(pad.getName()+"/"+(int)loc.getX()+"/"+(int)loc.getY()+"/"+(int)loc.getZ()+"/"+loc.getWorld().getName()+"/"+pad.getOwner()+"/"+pad.isWhitelisted());
-            }
-            pads.set("pads", padListString);
+            Pad pad = (Pad)padList.get(i);
+            Location loc = pad.getLocation();
+            padListString.add(pad.getName()+"/"+(int)loc.getX()+"/"+(int)loc.getY()+"/"+(int)loc.getZ()+"/"+loc.getWorld().getName()+"/"+pad.getOwner()+"/"+pad.isWhitelisted());
         }
-        if (!unvList.isEmpty())
+        pads.set("pads", padListString);
+        padListString = new ArrayList<String>();
+        for (int i=0;i<unvList.size();i++)
         {
-            List padListString = new ArrayList<String>();
-            for (int i=0;i<unvList.size();i++)
-            {
-                UnnamedPad pad = (UnnamedPad)unvList.get(i);
-                Location loc = pad.getLocation();
-                padListString.add((int)loc.getX()+"/"+(int)loc.getY()+"/"+(int)loc.getZ()+"/"+loc.getWorld().getName()+"/"+pad.getOwner().getName());
-            }
-            pads.set("unv", padListString);
-        } 
+            UnnamedPad pad = (UnnamedPad)unvList.get(i);
+            Location loc = pad.getLocation();
+            padListString.add((int)loc.getX()+"/"+(int)loc.getY()+"/"+(int)loc.getZ()+"/"+loc.getWorld().getName()+"/"+pad.getOwner().getName());
+        }
+        pads.set("unv", padListString);
         try {
             pads.save(padsFile);
         } catch (IOException ex) {

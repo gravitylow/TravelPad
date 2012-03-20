@@ -18,7 +18,7 @@ import org.bukkit.plugin.Plugin;
 public class TravelPadManager {
     private List<Pad> padList;
     private List<UnnamedPad> unvList;
-    private Configuration config = new Configuration();
+    public Configuration config = new Configuration();
     final Server server = Bukkit.getServer();
     final Plugin plugin;
     LangManager l = new LangManager();
@@ -35,7 +35,7 @@ public class TravelPadManager {
     public void update()
     {
         padList = config.getPads();
-        unvList = config.getUnnamedPads();           
+        unvList = config.getUnnamedPads();      
     }
     
     /**
@@ -54,23 +54,11 @@ public class TravelPadManager {
         {
             public void run() 
             {
-                System.out.println("checking unv");
                 if(config.isUnv(pad))
                 {
-                    System.out.println("is unv");
                     config.removePad(pad);
                     owner.sendMessage(ChatColor.RED+l.pad_expire());      
-                    World world = location.getWorld();
-                    Block block = world.getBlockAt(location);
-                    block.setType(Material.AIR);
-                    block.getRelative(BlockFace.EAST).setType(Material.AIR);
-                    block.getRelative(BlockFace.SOUTH).setType(Material.AIR);
-                    block.getRelative(BlockFace.NORTH).setType(Material.AIR);
-                    block.getRelative(BlockFace.WEST).setType(Material.AIR);   
-                    ItemStack i = new ItemStack(Material.OBSIDIAN, 1);
-                    ItemStack e = new ItemStack(Material.BRICK, 4);
-                    world.dropItemNaturally(block.getLocation(), i);
-                    world.dropItemNaturally(block.getLocation(), e);       
+                    deleteBlocks(location);     
                 }
             }
         },      600L);
@@ -89,6 +77,7 @@ public class TravelPadManager {
         }, 10L);
         owner.sendMessage(ChatColor.GREEN + l.create_approve_1());
         owner.sendMessage(ChatColor.GREEN + l.create_approve_2());   
+        update();
     }
     
     /**
@@ -96,12 +85,23 @@ public class TravelPadManager {
      *
      * @param  pad  UnnamedPad to be deleted
      */     
-    public void deletePad(UnnamedPad pad)
+    public void deleteUnnamedPad(UnnamedPad pad)
     {
         update();
         Location location = pad.getLocation();
         config.removePad(pad);
-        pad.getOwner().sendMessage(ChatColor.RED+l.pad_expire());      
+        pad.getOwner().sendMessage(ChatColor.RED+l.pad_expire()); 
+        deleteBlocks(location);
+        update();
+    }
+    
+    /**
+     * Clean up all the blocks around a pad after it has been deleted
+     *
+     * @param  location  Location of pad to be destroyed
+     */      
+    public void deleteBlocks(Location location)
+    {
         World world = location.getWorld();
         Block block = world.getBlockAt(location);
         block.setType(Material.AIR);
@@ -112,7 +112,7 @@ public class TravelPadManager {
         ItemStack i = new ItemStack(Material.OBSIDIAN, 1);
         ItemStack e = new ItemStack(Material.BRICK, 4);
         world.dropItemNaturally(block.getLocation(), i);
-        world.dropItemNaturally(block.getLocation(), e);     
+        world.dropItemNaturally(block.getLocation(), e);           
     }
     
     /**
@@ -124,7 +124,8 @@ public class TravelPadManager {
     public void switchPad(UnnamedPad pad, String name)
     {
         config.removePad(pad);
-        config.addPad(new Pad(pad.getLocation(), pad.getOwner().toString(), name, false));
+        config.addPad(new Pad(pad.getLocation(), pad.getOwner().getName(), name, false));
+        update();
     }
     
     /**
@@ -139,7 +140,7 @@ public class TravelPadManager {
         Player player = Bukkit.getPlayer(pad.getOwner());
         if (player != null)
         {
-            player.sendMessage(ChatColor.RED+l.delete_approve()+ChatColor.WHITE+pad.getName());
+            player.sendMessage(ChatColor.RED+l.delete_approve()+" "+ChatColor.WHITE+pad.getName());
             double returnValue = config.deleteAmount;
             if (returnValue != 0)
             {
@@ -157,7 +158,8 @@ public class TravelPadManager {
         ItemStack i = new ItemStack(Material.OBSIDIAN, 1);
         ItemStack e = new ItemStack(Material.BRICK, 4);
         world.dropItemNaturally(block.getLocation(), i);
-        world.dropItemNaturally(block.getLocation(), e);     
+        world.dropItemNaturally(block.getLocation(), e);   
+        update();
     }
     
     /**
@@ -208,7 +210,13 @@ public class TravelPadManager {
         update();
         for(Pad pad : padList)
         {
-            if (pad.getLocation() == location)
+            int x = (int)pad.getLocation().getX();
+            int y = (int)pad.getLocation().getY();
+            int z = (int)pad.getLocation().getZ();
+            int xx = (int)location.getX();
+            int yy = (int)location.getY();
+            int zz = (int)location.getZ();            
+            if (x == xx && y == yy && z == zz)
             {
                 return pad;
             }
@@ -227,7 +235,13 @@ public class TravelPadManager {
         update();
         for(UnnamedPad pad : unvList)
         {
-            if (pad.getLocation() == location)
+            int x = (int)pad.getLocation().getX();
+            int y = (int)pad.getLocation().getY();
+            int z = (int)pad.getLocation().getZ();
+            int xx = (int)location.getX();
+            int yy = (int)location.getY();
+            int zz = (int)location.getZ();            
+            if (x == xx && y == yy && z == zz)
             {
                 return pad;
             }

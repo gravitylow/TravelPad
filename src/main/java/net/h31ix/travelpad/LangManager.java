@@ -74,7 +74,7 @@ public class LangManager {
     
     public String delete_approve()
     {
-        return lang.getString("create_deny_waiting");
+        return lang.getString("delete_approve");
     }  
     
     public String command_deny_permission()

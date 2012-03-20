@@ -34,6 +34,16 @@ public class Pad {
     {
         return location;
     }
+
+    /**
+     * Get the location of the pad that is safe for a player to teleport to
+     *
+     * @return  location  Safe teleport location
+     */     
+    public Location getTeleportLocation()
+    {
+        return new Location(location.getWorld(), location.getX(), location.getY()+2, location.getZ());
+    }
     
     /**
      * Get the owner of the pad

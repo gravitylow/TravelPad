@@ -50,7 +50,7 @@ public class Travelpad extends JavaPlugin {
         {
             saveResource("lang.yml",false);
         }        
-        config = new Configuration();
+        config = manager.config;
         if (config.economyEnabled)
         {
             setupEconomy();
@@ -61,18 +61,55 @@ public class Travelpad extends JavaPlugin {
     
     public boolean namePad(Player player, String name)
     {
-        if (manager.getUnnamedPadsFrom(player) != null)
-        {
-            Object[] pads = manager.getUnnamedPadsFrom(player).toArray();
-            UnnamedPad pad = ((UnnamedPad)pads[0]);
-            config.addPad(new Pad(pad.getLocation(), player.getName(), name, false));
-            manager.switchPad(pad,name);
-            return true;
-        }
-        else
+        Object[] pads = manager.getUnnamedPadsFrom(player).toArray();
+        if (pads.length == 0)
         {
             return false;
         }
+        else
+        {
+            UnnamedPad pad = ((UnnamedPad)pads[0]);
+            manager.switchPad(pad,name);
+            return true;
+        }
+    }
+    
+    public Pad getPadAt(Location location)
+    {
+        List<Pad> list = manager.getPads();
+        for (Pad pad : list)
+        {
+            int x = (int)pad.getLocation().getX();
+            int y = (int)pad.getLocation().getY();
+            int z = (int)pad.getLocation().getZ();
+            int xx = (int)location.getX();
+            int yy = (int)location.getY();
+            int zz = (int)location.getZ();
+            if (x <= xx+2 && x >= xx-2 && y <= yy+2 && y >= yy-2 && z <= zz+2 && z >= zz-2)
+            {
+                return pad;
+            }   
+        }
+        return null;
+    }
+    
+    public UnnamedPad getUnnamedPadAt(Location location)
+    {
+        List<UnnamedPad> list = manager.getUnnamedPads();
+        for (UnnamedPad pad : list)
+        {
+            int x = (int)pad.getLocation().getX();
+            int y = (int)pad.getLocation().getY();
+            int z = (int)pad.getLocation().getZ();
+            int xx = (int)location.getX();
+            int yy = (int)location.getY();
+            int zz = (int)location.getZ();
+            if (x <= xx+2 && x >= xx-2 && y <= yy+2 && y >= yy-2 && z <= zz+2 && z >= zz-2)
+            {
+                return pad;
+            }   
+        }
+        return null;        
     }
     
     public boolean hasPad(Player player)

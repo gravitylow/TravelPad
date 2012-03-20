@@ -34,10 +34,10 @@ public class TravelPadCommandExecutor implements CommandExecutor {
             {
                 if (args[0].equalsIgnoreCase(l.command_identify()) || args[0].equalsIgnoreCase(l.command_identify_shortcut()))
                 {         
-                    Pad pad = manager.getPadAt(player.getLocation());
+                    Pad pad = plugin.getPadAt(player.getLocation());
                     if (pad != null)
                     {
-                        player.sendMessage(ChatColor.GREEN+l.identify_found_message()+ChatColor.WHITE+pad.getName());
+                        player.sendMessage(ChatColor.GREEN+l.identify_found_message()+ChatColor.WHITE+" "+pad.getName());
                     }
                     else
                     {
@@ -77,12 +77,12 @@ public class TravelPadCommandExecutor implements CommandExecutor {
                 {    
                     if (player.hasPermission("travelpad.teleport") || player.hasPermission("travelpad.tp"))
                     {
-                        Pad pad = manager.getPadAt(player.getLocation());
+                        Pad pad = plugin.getPadAt(player.getLocation());
                         if (pad != null)
                         {
                             if (plugin.doesPadExist(args[1]))
                             {
-                                Location loc = manager.getPad(args[1]).getLocation();
+                                Location loc = manager.getPad(args[1]).getTeleportLocation();
                                 plugin.teleport(player, loc);
                             }
                             else
@@ -110,7 +110,7 @@ public class TravelPadCommandExecutor implements CommandExecutor {
                             boolean set = plugin.namePad(player, name);
                             if (set)
                             {
-                                player.sendMessage(ChatColor.GREEN+l.name_message()+ChatColor.WHITE+name);
+                                player.sendMessage(ChatColor.GREEN+l.name_message()+ChatColor.WHITE+" "+name);
                             }
                             else
                             {
@@ -134,7 +134,7 @@ public class TravelPadCommandExecutor implements CommandExecutor {
                         if (plugin.doesPadExist(args[1]))
                         {
                             manager.deletePad(manager.getPad(args[1]));
-                            player.sendMessage(ChatColor.GREEN+l.delete_approve()+ChatColor.WHITE+args[1]);
+                            player.sendMessage(ChatColor.GREEN+l.delete_approve()+" "+ChatColor.WHITE+args[1]);
                         }
                         else
                         {
