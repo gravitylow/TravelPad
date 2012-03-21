@@ -124,7 +124,7 @@ public class TravelPadManager {
     public void switchPad(UnnamedPad pad, String name)
     {
         config.removePad(pad);
-        config.addPad(new Pad(pad.getLocation(), pad.getOwner().getName(), name, false));
+        config.addPad(new Pad(pad.getLocation(), pad.getOwner().getName(), name));
         update();
     }
     

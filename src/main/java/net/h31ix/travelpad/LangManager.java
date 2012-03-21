@@ -6,6 +6,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 public class LangManager {
     private FileConfiguration lang = YamlConfiguration.loadConfiguration(new File("plugins/TravelPad/lang.yml"));
+    
    
     public String travel_deny_item()
     {
@@ -105,67 +106,7 @@ public class LangManager {
     public String name_deny_inuse()
     {
         return lang.getString("name_deny_inuse");
-    }    
-    
-    public String command_identify()
-    {
-        return lang.getString("command_identify");
-    }   
-    
-    public String command_identify_shortcut()
-    {
-        return lang.getString("command_identify_shortcut");
-    }    
-    
-    public String command_delete()
-    {
-        return lang.getString("command_delete");
-    }     
-    
-    public String command_delete_shortcut()
-    {
-        return lang.getString("command_delete_shortcut");
-    }   
-    
-    public String command_teleport()
-    {
-        return lang.getString("command_teleport");
-    }    
-    
-    public String command_teleport_shortcut()
-    {
-        return lang.getString("command_teleport_shortcut");
-    }   
-    
-    public String command_name()
-    {
-        return lang.getString("command_name");
-    }    
-    
-    public String command_name_shortcut()
-    {
-        return lang.getString("command_name_shortcut");
-    }     
-    
-    public String command_whitelist()
-    {
-        return lang.getString("command_whitelist");
-    }    
-    
-    public String command_whitelist_shortcut()
-    {
-        return lang.getString("command_whitelist_shortcut");
-    } 
-    
-    public String command_unwhitelist()
-    {
-        return lang.getString("command_unwhitelist");
-    }    
-    
-    public String command_unwhitelist_shortcut()
-    {
-        return lang.getString("command_unwhitelist_shortcut");
-    }     
+    }        
     
     public String create_approve_1()
     {

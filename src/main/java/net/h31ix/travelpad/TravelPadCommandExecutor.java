@@ -32,7 +32,7 @@ public class TravelPadCommandExecutor implements CommandExecutor {
             Player player = (Player)cs;
             if (args.length == 1)
             {
-                if (args[0].equalsIgnoreCase(l.command_identify()) || args[0].equalsIgnoreCase(l.command_identify_shortcut()))
+                if (args[0].equalsIgnoreCase("identify") || args[0].equalsIgnoreCase("i"))
                 {         
                     Pad pad = plugin.getPadAt(player.getLocation());
                     if (pad != null)
@@ -44,7 +44,7 @@ public class TravelPadCommandExecutor implements CommandExecutor {
                         player.sendMessage(ChatColor.RED+l.identify_notfound_message());
                     }
                 }             
-                else if (args[0].equalsIgnoreCase(l.command_delete()) || args[0].equalsIgnoreCase(l.command_delete_shortcut()))
+                else if (args[0].equalsIgnoreCase("delete") || args[0].equalsIgnoreCase("d"))
                 {
                     if (plugin.getPads(player) > 1)
                     {
@@ -63,10 +63,17 @@ public class TravelPadCommandExecutor implements CommandExecutor {
                         }
                     }
                 }
+                else
+                {
+                    player.sendMessage(ChatColor.GREEN+"/travelpad [name/n]");
+                    player.sendMessage(ChatColor.GREEN+"/travelpad [identify/i]");
+                    player.sendMessage(ChatColor.GREEN+"/travelpad [delete/d]");
+                    player.sendMessage(ChatColor.GREEN+"/travelpad [teleport/tp");                    
+                }
             }
             else if (args.length == 2)
             {
-                if (args[0].equalsIgnoreCase(l.command_teleport()) || args[0].equalsIgnoreCase(l.command_teleport_shortcut()))
+                if (args[0].equalsIgnoreCase("teleport") || args[0].equalsIgnoreCase("tp"))
                 {    
                     if (player.hasPermission("travelpad.teleport") || player.hasPermission("travelpad.tp"))
                     {
@@ -77,15 +84,8 @@ public class TravelPadCommandExecutor implements CommandExecutor {
                             {
                                 if (plugin.canTeleport(player))
                                 {
-                                    if (plugin.isWhitelisted(player, pad))
-                                    {
-                                        Location loc = manager.getPad(args[1]).getTeleportLocation();
-                                        plugin.teleport(player, loc);
-                                    }
-                                    else
-                                    {
-                                        player.sendMessage(ChatColor.RED+"You are not whitelisted!");
-                                    }
+                                    Location loc = manager.getPad(args[1]).getTeleportLocation();
+                                    plugin.teleport(player, loc);
                                 }
                                 else
                                 {
@@ -107,7 +107,7 @@ public class TravelPadCommandExecutor implements CommandExecutor {
                         player.sendMessage(ChatColor.RED+l.command_deny_permission());
                     }
                 }  
-                else if (args[0].equalsIgnoreCase(l.command_name()) || args[0].equalsIgnoreCase(l.command_name_shortcut()))
+                else if (args[0].equalsIgnoreCase("name") || args[0].equalsIgnoreCase("n"))
                 {
                     if (manager.nameIsValid(args[1]))
                     {
@@ -127,102 +127,45 @@ public class TravelPadCommandExecutor implements CommandExecutor {
                         player.sendMessage(ChatColor.RED+l.name_deny_inuse());
                     }                  
                 }
-                else if (args[0].equalsIgnoreCase(l.command_delete()) || args[0].equalsIgnoreCase(l.command_delete_shortcut()))
-                {
-                    if (player.hasPermission("travelpad.delete.all") || player.hasPermission("travelpad.delete.any") || manager.getPadsFrom(player).size() > 1)
-                    {
-                        if (plugin.doesPadExist(args[1]))
-                        {
-                            if (!manager.getPad(args[1]).getOwner().equalsIgnoreCase(player.getName()))
-                            {
-                                if (player.hasPermission("travelpad.delete.all") || player.hasPermission("travelpad.delete.any"))
-                                {
-                                    manager.deletePad(manager.getPad(args[1]));
-                                }
-                                else
-                                {
-                                    player.sendMessage(ChatColor.RED+l.delete_deny_notfound());
-                                }
-                            }
-                            else
-                            {
-                                    manager.deletePad(manager.getPad(args[1]));
-                                    player.sendMessage(ChatColor.GREEN+l.delete_approve()+" "+ChatColor.WHITE+args[1]);
-                            }
-                        }
-                        else
-                        {
-                            player.sendMessage(ChatColor.RED+l.delete_deny_notfound());
-                        }
-                    }
-                    else
-                    {
-                        player.sendMessage(ChatColor.RED+l.command_deny_permission());
-                    }                    
-                }
-            }
-            else if (args.length == 3)
-            {
-                if (args[0].equalsIgnoreCase(l.command_whitelist()) || args[0].equalsIgnoreCase(l.command_whitelist_shortcut()))
+                else if (args[0].equalsIgnoreCase("delete") || args[0].equalsIgnoreCase("d"))
                 {
                     if (plugin.doesPadExist(args[1]))
                     {
-                        Pad pad = manager.getPad(args[1]);
-                        if (args[2].equalsIgnoreCase("on"))
+                        if (!manager.getPad(args[1]).getOwner().equalsIgnoreCase(player.getName()))
                         {
-                            pad.setWhitelisted(true); 
-                            player.sendMessage(ChatColor.GREEN+"Whitelist -> on");
-                        }
-                        else if (args[2].equalsIgnoreCase("off"))
-                        {
-                            pad.setWhitelisted(false); 
-                            player.sendMessage(ChatColor.RED+"Whitelist -> off");
+                            if (player.hasPermission("travelpad.delete.all") || player.hasPermission("travelpad.delete.any"))
+                            {
+                                manager.deletePad(manager.getPad(args[1]));
+                            }
+                            else
+                            {
+                                player.sendMessage(ChatColor.RED+l.command_deny_permission());
+                            }
                         }
                         else
                         {
-                            pad.addWhitelist(args[2]);
-                            player.sendMessage(ChatColor.GREEN+"Added "+args[2]);
+                                manager.deletePad(manager.getPad(args[1]));
                         }
-                    } 
+                    }
                     else
                     {
                         player.sendMessage(ChatColor.RED+l.delete_deny_notfound());
                     }
                 }
-                if (args[0].equalsIgnoreCase(l.command_unwhitelist()) || args[0].equalsIgnoreCase(l.command_unwhitelist_shortcut()))
+                else
                 {
-                    if (plugin.doesPadExist(args[1]))
-                    {
-                        Pad pad = manager.getPad(args[1]);
-                        if (pad.isWhitelisted())
-                        {
-                            boolean b = pad.removeWhitelist(args[2]);
-                            if (b)
-                            {
-                                player.sendMessage(ChatColor.GREEN+"Removed "+args[2]);
-                            }
-                            else
-                            {
-                                player.sendMessage(ChatColor.RED+"Not whitelisted!");
-                            }
-                        }
-                        else
-                        {
-                            player.sendMessage(ChatColor.RED+"Whitelist not on.");
-                        }
-                    } 
-                    else
-                    {
-                        player.sendMessage(ChatColor.RED+l.delete_deny_notfound());
-                    }
+                    player.sendMessage(ChatColor.GREEN+"/travelpad [name/n]");
+                    player.sendMessage(ChatColor.GREEN+"/travelpad [identify/i]");
+                    player.sendMessage(ChatColor.GREEN+"/travelpad [delete/d]");
+                    player.sendMessage(ChatColor.GREEN+"/travelpad [teleport/tp");                    
                 }                
             }
             else
             {
-                player.sendMessage(ChatColor.GREEN+"/travelpad ["+l.command_name()+"/"+l.command_name_shortcut()+"]");
-                player.sendMessage(ChatColor.GREEN+"/travelpad ["+l.command_identify()+"/"+l.command_identify_shortcut()+"]");
-                player.sendMessage(ChatColor.GREEN+"/travelpad ["+l.command_delete()+"/"+l.command_delete_shortcut()+"]");
-                player.sendMessage(ChatColor.GREEN+"/travelpad ["+l.command_teleport()+"/"+l.command_teleport_shortcut()+"]");
+                player.sendMessage(ChatColor.GREEN+"/travelpad [name/n]");
+                player.sendMessage(ChatColor.GREEN+"/travelpad [identify/i]");
+                player.sendMessage(ChatColor.GREEN+"/travelpad [delete/d]");
+                player.sendMessage(ChatColor.GREEN+"/travelpad [teleport/tp");
             }
         }
         return true;

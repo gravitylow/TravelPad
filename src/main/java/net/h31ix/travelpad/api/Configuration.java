@@ -87,15 +87,15 @@ public class Configuration {
         }
         else
         {
-            String s = config.getString("Player Options."+player.getName().toLowerCase()+".Max");
-            if (s != null)
+            int allowed = 1;
+            for(int i=0;i<=100;i++)
             {
-                return Integer.parseInt(s);
+                if(player.hasPermission("travelpad.max."+i))
+                {
+                    allowed = i;
+                }
             }
-            else
-            {
-                return 1;
-            }
+            return allowed;
         }
     }
     
@@ -168,12 +168,7 @@ public class Configuration {
                 double z = Integer.parseInt(pad[3]);
                 World world = Bukkit.getServer().getWorld(pad[4]);
                 String player = pad[5];
-                boolean protect = Boolean.parseBoolean(pad[6]);
-                Pad pad2 = new Pad(new Location(world,x,y,z),player,name,protect);
-                if (protect)
-                {
-                    pad2.setWhitelist(pads.getList("Pad Options."+pad2.getName()+".Whitelist"));
-                }                
+                Pad pad2 = new Pad(new Location(world,x,y,z),player,name);          
                 padList.add(pad2);
             }      
         }
@@ -201,11 +196,7 @@ public class Configuration {
         {
             Pad pad = (Pad)padList.get(i);
             Location loc = pad.getLocation();
-            padListString.add(pad.getName()+"/"+(int)loc.getX()+"/"+(int)loc.getY()+"/"+(int)loc.getZ()+"/"+loc.getWorld().getName()+"/"+pad.getOwner()+"/"+pad.isWhitelisted());
-            if (pad.isWhitelisted())
-            {
-                pads.set("Pad Options."+pad.getName()+".Whitelist", pad.getWhitelist());
-            }
+            padListString.add(pad.getName()+"/"+(int)loc.getX()+"/"+(int)loc.getY()+"/"+(int)loc.getZ()+"/"+loc.getWorld().getName()+"/"+pad.getOwner());
         }
         pads.set("pads", padListString);
         padListString = new ArrayList<String>();

@@ -1,7 +1,5 @@
 package net.h31ix.travelpad;
 
-import com.massivecraft.factions.Faction;
-import com.massivecraft.factions.Factions;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -24,8 +22,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class Travelpad extends JavaPlugin {
     public Configuration config;
-    public TravelPadManager manager = new TravelPadManager(this);
-    public LangManager l = new LangManager();
+    public TravelPadManager manager;
+    public LangManager l;
     private Economy economy;
     
     
@@ -35,7 +33,6 @@ public class Travelpad extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        getCommand("travelpad").setExecutor(new TravelPadCommandExecutor(this));
         if(!new File("plugins/TravelPad/config.yml").exists())
         {
             saveDefaultConfig();
@@ -51,14 +48,22 @@ public class Travelpad extends JavaPlugin {
         if (!new File("plugins/TravelPad/lang.yml").exists())
         {
             saveResource("lang.yml",false);
-        }        
+        }       
+        manager = new TravelPadManager(this);
         config = manager.config;
+        l = new LangManager();
         if (config.economyEnabled)
         {
             setupEconomy();
         }
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new TravelPadBlockListener(this), this);
+        getCommand("travelpad").setExecutor(new TravelPadCommandExecutor(this));     
+        try {
+            new Metrics(this).start();
+        } catch (IOException ex) {
+            Logger.getLogger(Travelpad.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     public boolean namePad(Player player, String name)
@@ -117,7 +122,7 @@ public class Travelpad extends JavaPlugin {
     public boolean hasPad(Player player)
     {
         List<Pad> pads = manager.getPadsFrom(player);
-        if (pads != null)    
+        if (pads.size() > 0)    
         {
             return true;
         }
@@ -126,20 +131,6 @@ public class Travelpad extends JavaPlugin {
             return false;
         }
     }
-    
-    /**public boolean addFactions(String tag, Pad pad)
-    {
-        Factions factions = (Factions) this.getServer().getPluginManager().getPlugin("Factions");     
-        Faction fac = factions.getByTag(tag);
-        if (fac == null)
-        {
-            return false;
-        }
-        else
-        {
-            pad.add
-        }
-    }*/
     
     public double getRandom()
     {       
@@ -260,25 +251,6 @@ public class Travelpad extends JavaPlugin {
             player.sendMessage(ChatColor.GOLD+l.refund_message()+" "+config.deleteAmount);
         }
     }   
-    
-    public boolean isWhitelisted(Player player, Pad pad)
-    {
-        if (!pad.isWhitelisted())
-        {
-            return true;
-        }
-        else
-        {
-            for(String s : (List<String>)pad.getWhitelist())
-            {
-                if (s.equalsIgnoreCase(player.getName()))
-                {
-                    return true;
-                }
-            }  
-            return false;
-        }
-    }
     
     public boolean canTeleport(Player player)
     {

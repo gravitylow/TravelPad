@@ -10,10 +10,3 @@ Portal Options:
   Refund on deletion: false
   Creation charge: 30.0
   Deletion return: 10.0
-  
-#Player options gives certain players access to a fixed amount of portals.
-#Names must be ALL LOWER CASE or else you could get issues
-Player Options:
-  h31ix:
-    Max: 4
-  
