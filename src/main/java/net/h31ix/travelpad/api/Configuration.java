@@ -34,6 +34,8 @@ public class Configuration {
     
     public boolean economyEnabled = false;
     
+    public boolean anyBreak = false;
+    
     private List<Pad> padList;
     private List<UnnamedPad> unvList;
     
@@ -42,6 +44,16 @@ public class Configuration {
         pads = YamlConfiguration.loadConfiguration(padsFile);
         config = YamlConfiguration.loadConfiguration(configFile);  
         load();
+        if (config.getString("Portal Options.Allow any player to break") == null)
+        {
+            config.set("Portal Options.Allow any player to break", false);
+            try {
+                config.save(configFile);
+            } catch (IOException ex) {
+                Logger.getLogger(Configuration.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        anyBreak = config.getBoolean("Portal Options.Allow any player to break");
         requireItem = config.getBoolean("Teleportation Options.Require item");
         if (requireItem)
         {

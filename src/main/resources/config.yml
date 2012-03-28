@@ -10,3 +10,4 @@ Portal Options:
   Refund on deletion: false
   Creation charge: 30.0
   Deletion return: 10.0
+  Allow any player to break: false  

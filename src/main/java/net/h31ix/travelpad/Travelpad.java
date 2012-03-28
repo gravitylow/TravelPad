@@ -234,7 +234,6 @@ public class Travelpad extends JavaPlugin {
         }
     }
     
-    @Deprecated    
     public void chargeTP(Player player)
     {
         if (!player.hasPermission("travelpad.nopay"))
