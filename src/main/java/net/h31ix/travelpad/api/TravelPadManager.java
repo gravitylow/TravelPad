@@ -320,6 +320,7 @@ public class TravelPadManager {
      */        
     public List<Pad> getPads()
     {
+        update();
         return padList;
     }
     
