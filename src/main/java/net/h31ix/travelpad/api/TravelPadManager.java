@@ -1,8 +1,12 @@
 package net.h31ix.travelpad.api;
 
+import net.h31ix.travelpad.event.TravelPadExpireEvent;
 import java.util.ArrayList;
 import java.util.List;
 import net.h31ix.travelpad.LangManager;
+import net.h31ix.travelpad.event.TravelPadCreateEvent;
+import net.h31ix.travelpad.event.TravelPadDeleteEvent;
+import net.h31ix.travelpad.event.TravelPadNameEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -21,7 +25,7 @@ public class TravelPadManager {
     public Configuration config = new Configuration();
     final Server server = Bukkit.getServer();
     final Plugin plugin;
-    LangManager l = new LangManager();
+    public LangManager l = new LangManager();
     
     public TravelPadManager(Plugin plugin)
     {
@@ -48,36 +52,46 @@ public class TravelPadManager {
     {
         update();
         final UnnamedPad pad = new UnnamedPad(location,player);
-        config.addUnv(pad);
-        final Player owner = pad.getOwner();
-        server.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() 
-        {
-            public void run() 
+        TravelPadCreateEvent e = new TravelPadCreateEvent(pad);
+        plugin.getServer().getPluginManager().callEvent(e);
+        if (!e.isCancelled())
+        {        
+            config.addUnv(pad);
+            final Player owner = pad.getOwner();
+            server.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() 
             {
-                if(config.isUnv(pad))
+                public void run() 
                 {
-                    config.removePad(pad);
-                    owner.sendMessage(ChatColor.RED+l.pad_expire());      
-                    deleteBlocks(location);     
+                    if(config.isUnv(pad))
+                    {
+                        TravelPadExpireEvent e = new TravelPadExpireEvent(pad);
+                        plugin.getServer().getPluginManager().callEvent(e);
+                        if (!e.isCancelled())
+                        {
+                            config.removePad(pad);
+                            owner.sendMessage(ChatColor.RED+l.pad_expire());      
+                            deleteBlocks(location);  
+                        }
+                    }
                 }
-            }
-        },      600L);
-        final Block block = location.getBlock();
-        block.getRelative(BlockFace.EAST).setType(Material.STEP);
-        block.getRelative(BlockFace.WEST).setType(Material.STEP);
-        block.getRelative(BlockFace.NORTH).setType(Material.STEP);
-        block.getRelative(BlockFace.SOUTH).setType(Material.STEP);
-        block.getRelative(BlockFace.UP).setType(Material.WATER);
-        server.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() 
-        {
-            public void run() 
+            },      600L);
+            final Block block = location.getBlock();
+            block.getRelative(BlockFace.EAST).setType(Material.STEP);
+            block.getRelative(BlockFace.WEST).setType(Material.STEP);
+            block.getRelative(BlockFace.NORTH).setType(Material.STEP);
+            block.getRelative(BlockFace.SOUTH).setType(Material.STEP);
+            block.getRelative(BlockFace.UP).setType(Material.WATER);
+            server.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() 
             {
-                block.getRelative(BlockFace.UP).setType(Material.AIR);
-            }
-        }, 10L);
-        owner.sendMessage(ChatColor.GREEN + l.create_approve_1());
-        owner.sendMessage(ChatColor.GREEN + l.create_approve_2());   
-        update();
+                public void run() 
+                {
+                    block.getRelative(BlockFace.UP).setType(Material.AIR);
+                }
+            }, 10L);
+            owner.sendMessage(ChatColor.GREEN + l.create_approve_1());
+            owner.sendMessage(ChatColor.GREEN + l.create_approve_2());   
+            update();
+        }
     }
     
     /**
@@ -87,12 +101,17 @@ public class TravelPadManager {
      */     
     public void deleteUnnamedPad(UnnamedPad pad)
     {
-        update();
-        Location location = pad.getLocation();
-        config.removePad(pad);
-        pad.getOwner().sendMessage(ChatColor.RED+l.pad_expire()); 
-        deleteBlocks(location);
-        update();
+        TravelPadExpireEvent e = new TravelPadExpireEvent(pad);
+        plugin.getServer().getPluginManager().callEvent(e);
+        if (!e.isCancelled())
+        {
+            update();
+            Location location = pad.getLocation();
+            config.removePad(pad);
+            pad.getOwner().sendMessage(ChatColor.RED+l.pad_expire()); 
+            deleteBlocks(location);
+            update();
+        }
     }
     
     /**
@@ -123,9 +142,14 @@ public class TravelPadManager {
      */        
     public void switchPad(UnnamedPad pad, String name)
     {
-        config.removePad(pad);
-        config.addPad(new Pad(pad.getLocation(), pad.getOwner().getName(), name));
-        update();
+        TravelPadNameEvent e = new TravelPadNameEvent(pad, name);
+        plugin.getServer().getPluginManager().callEvent(e);
+        if (!e.isCancelled())
+        {        
+            config.removePad(pad);
+            config.addPad(new Pad(pad.getLocation(), pad.getOwner().getName(), e.getName()));
+            update();
+        }
     }
     
     /**
@@ -135,26 +159,31 @@ public class TravelPadManager {
      */       
     public void deletePad(Pad pad)
     {
-        update();
-        config.removePad(pad);
-        Player player = Bukkit.getPlayer(pad.getOwner());
-        if (player != null)
-        {
-            player.sendMessage(ChatColor.RED+l.delete_approve()+" "+ChatColor.WHITE+pad.getName());
+        TravelPadDeleteEvent d = new TravelPadDeleteEvent(pad);
+        plugin.getServer().getPluginManager().callEvent(d);
+        if (!d.isCancelled())
+        {          
+            update();
+            config.removePad(pad);
+            Player player = Bukkit.getPlayer(pad.getOwner());
+            if (player != null)
+            {
+                player.sendMessage(ChatColor.RED+l.delete_approve()+" "+ChatColor.WHITE+pad.getName());
+            }
+            Location location = pad.getLocation();
+            World world = location.getWorld();
+            Block block = world.getBlockAt(location);
+            block.setType(Material.AIR);
+            block.getRelative(BlockFace.EAST).setType(Material.AIR);
+            block.getRelative(BlockFace.SOUTH).setType(Material.AIR);
+            block.getRelative(BlockFace.NORTH).setType(Material.AIR);
+            block.getRelative(BlockFace.WEST).setType(Material.AIR);   
+            ItemStack i = new ItemStack(Material.OBSIDIAN, 1);
+            ItemStack e = new ItemStack(Material.BRICK, 4);
+            world.dropItemNaturally(block.getLocation(), i);
+            world.dropItemNaturally(block.getLocation(), e);   
+            update();
         }
-        Location location = pad.getLocation();
-        World world = location.getWorld();
-        Block block = world.getBlockAt(location);
-        block.setType(Material.AIR);
-        block.getRelative(BlockFace.EAST).setType(Material.AIR);
-        block.getRelative(BlockFace.SOUTH).setType(Material.AIR);
-        block.getRelative(BlockFace.NORTH).setType(Material.AIR);
-        block.getRelative(BlockFace.WEST).setType(Material.AIR);   
-        ItemStack i = new ItemStack(Material.OBSIDIAN, 1);
-        ItemStack e = new ItemStack(Material.BRICK, 4);
-        world.dropItemNaturally(block.getLocation(), i);
-        world.dropItemNaturally(block.getLocation(), e);   
-        update();
     }
     
     /**

@@ -2,6 +2,7 @@ package net.h31ix.travelpad;
 
 import net.h31ix.travelpad.api.Pad;
 import net.h31ix.travelpad.api.TravelPadManager;
+import net.h31ix.travelpad.event.TravelPadTeleportEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.command.Command;
@@ -84,8 +85,14 @@ public class TravelPadCommandExecutor implements CommandExecutor {
                             {
                                 if (plugin.canTeleport(player))
                                 {
-                                    Location loc = manager.getPad(args[1]).getTeleportLocation();
-                                    plugin.teleport(player, loc);
+                                    Pad to = manager.getPad(args[1]);
+                                    TravelPadTeleportEvent e = new TravelPadTeleportEvent(to,pad,player);
+                                    plugin.getServer().getPluginManager().callEvent(e);
+                                    if (!e.isCancelled())
+                                    {                                    
+                                        Location loc = e.getTo().getTeleportLocation();
+                                        plugin.teleport(player, loc);
+                                    }
                                 }
                                 else
                                 {

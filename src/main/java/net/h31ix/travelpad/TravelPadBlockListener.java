@@ -3,7 +3,6 @@ package net.h31ix.travelpad;
 import net.h31ix.travelpad.api.Pad;
 import net.h31ix.travelpad.api.TravelPadManager;
 import net.h31ix.travelpad.api.UnnamedPad;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -20,13 +19,11 @@ public class TravelPadBlockListener implements Listener {
     
     private Travelpad plugin;
     private TravelPadManager manager;
-    private LangManager l;
     
     public TravelPadBlockListener(Travelpad plugin)
     {
         this.plugin = plugin;
         manager = plugin.manager;
-        l = plugin.l;
     }
     
     @EventHandler
@@ -80,22 +77,13 @@ public class TravelPadBlockListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event)
     {
         Block block = event.getBlock();
-        Player player = event.getPlayer();
         if (block.getType() == Material.OBSIDIAN)
         {
             Pad pad = manager.getPadAt(block.getLocation());
             UnnamedPad upad = plugin.getUnnamedPadAt(block.getLocation());
             if (pad != null)
             {
-                if (pad.getOwner().equalsIgnoreCase(player.getName()))
-                {
-                    plugin.delete(pad);
-                }
-                else
-                {
-                    event.setCancelled(true);
-                    player.sendMessage(ChatColor.RED+l.command_deny_permission());
-                }
+                plugin.delete(pad);
             }
             else if (upad != null)
             {

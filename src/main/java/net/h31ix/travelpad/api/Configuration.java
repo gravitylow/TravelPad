@@ -17,8 +17,8 @@ public class Configuration {
     
     private File configFile = new File("plugins/TravelPad/config.yml");
     private FileConfiguration config;
-    private File padsFile = new File("plugins/TravelPad/pads.yml");
-    private FileConfiguration pads;    
+    public File padsFile = new File("plugins/TravelPad/pads.yml");
+    public FileConfiguration pads;    
     
     public boolean requireItem = false;
     public boolean takeItem = false;

@@ -58,7 +58,8 @@ public class Travelpad extends JavaPlugin {
         }
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new TravelPadBlockListener(this), this);
-        getCommand("travelpad").setExecutor(new TravelPadCommandExecutor(this));     
+        pm.registerEvents(new TravelPadListener(this), this);
+        getCommand("travelpad").setExecutor(new TravelPadCommandExecutor(this));   
         try {
             new Metrics(this).start();
         } catch (IOException ex) {
@@ -159,8 +160,8 @@ public class Travelpad extends JavaPlugin {
         if (createValue != 0)
         {
             charge(player);
-        }        
-        manager.createPad(location, player);       
+        }         
+        manager.createPad(location, player); 
     }
     
     public void teleport(Player player, Location loc)
@@ -252,6 +253,15 @@ public class Travelpad extends JavaPlugin {
         }
     }   
     
+    public void refundNoCreate(Player player)
+    {
+        if (!player.hasPermission("travelpad.nopay"))
+        {        
+            economy.depositPlayer(player.getName(), config.createAmount);
+            player.sendMessage(ChatColor.GOLD+l.refund_message()+" "+config.deleteAmount);
+        }
+    }       
+    
     public boolean canTeleport(Player player)
     {
         if (player.hasPermission("travelpad.nopay"))
@@ -308,6 +318,14 @@ public class Travelpad extends JavaPlugin {
                 player.sendMessage(ChatColor.RED+l.create_deny_waiting());
                 return false;
             }   
+            if (config.economyEnabled)
+            {
+                if (!(economy.getBalance(player.getName()) >= config.createAmount))
+                {
+                    player.sendMessage(ChatColor.RED+"Not enough money!");
+                    return false;
+                }
+            }
             int allow = config.getAllowedPads(player);
             List<Pad> pads = manager.getPadsFrom(player);
             int has = 0;
