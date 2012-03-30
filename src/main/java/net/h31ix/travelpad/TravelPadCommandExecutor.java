@@ -164,7 +164,7 @@ public class TravelPadCommandExecutor implements CommandExecutor {
                     player.sendMessage(ChatColor.GREEN+"/travelpad [name/n]");
                     player.sendMessage(ChatColor.GREEN+"/travelpad [identify/i]");
                     player.sendMessage(ChatColor.GREEN+"/travelpad [delete/d]");
-                    player.sendMessage(ChatColor.GREEN+"/travelpad [teleport/tp");                    
+                    player.sendMessage(ChatColor.GREEN+"/travelpad [teleport/tp]");                    
                 }                
             }
             else
@@ -172,7 +172,7 @@ public class TravelPadCommandExecutor implements CommandExecutor {
                 player.sendMessage(ChatColor.GREEN+"/travelpad [name/n]");
                 player.sendMessage(ChatColor.GREEN+"/travelpad [identify/i]");
                 player.sendMessage(ChatColor.GREEN+"/travelpad [delete/d]");
-                player.sendMessage(ChatColor.GREEN+"/travelpad [teleport/tp");
+                player.sendMessage(ChatColor.GREEN+"/travelpad [teleport/tp]");
             }
         }
         return true;

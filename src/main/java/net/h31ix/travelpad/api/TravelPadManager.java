@@ -80,14 +80,17 @@ public class TravelPadManager {
             block.getRelative(BlockFace.WEST).setType(Material.STEP);
             block.getRelative(BlockFace.NORTH).setType(Material.STEP);
             block.getRelative(BlockFace.SOUTH).setType(Material.STEP);
-            block.getRelative(BlockFace.UP).setType(Material.WATER);
-            server.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() 
+            if (config.emitWater)
             {
-                public void run() 
+                block.getRelative(BlockFace.UP).setType(Material.WATER);
+                server.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() 
                 {
-                    block.getRelative(BlockFace.UP).setType(Material.AIR);
-                }
-            }, 10L);
+                    public void run() 
+                    {
+                        block.getRelative(BlockFace.UP).setType(Material.AIR);
+                    }
+                }, 10L);
+            }
             owner.sendMessage(ChatColor.GREEN + l.create_approve_1());
             owner.sendMessage(ChatColor.GREEN + l.create_approve_2());   
             update();
@@ -128,8 +131,8 @@ public class TravelPadManager {
         block.getRelative(BlockFace.SOUTH).setType(Material.AIR);
         block.getRelative(BlockFace.NORTH).setType(Material.AIR);
         block.getRelative(BlockFace.WEST).setType(Material.AIR);   
-        ItemStack i = new ItemStack(Material.OBSIDIAN, 1);
-        ItemStack e = new ItemStack(Material.BRICK, 4);
+        ItemStack i = new ItemStack(config.center, 1);
+        ItemStack e = new ItemStack(config.outline, 4);
         world.dropItemNaturally(block.getLocation(), i);
         world.dropItemNaturally(block.getLocation(), e);           
     }
@@ -170,18 +173,7 @@ public class TravelPadManager {
             {
                 player.sendMessage(ChatColor.RED+l.delete_approve()+" "+ChatColor.WHITE+pad.getName());
             }
-            Location location = pad.getLocation();
-            World world = location.getWorld();
-            Block block = world.getBlockAt(location);
-            block.setType(Material.AIR);
-            block.getRelative(BlockFace.EAST).setType(Material.AIR);
-            block.getRelative(BlockFace.SOUTH).setType(Material.AIR);
-            block.getRelative(BlockFace.NORTH).setType(Material.AIR);
-            block.getRelative(BlockFace.WEST).setType(Material.AIR);   
-            ItemStack i = new ItemStack(Material.OBSIDIAN, 1);
-            ItemStack e = new ItemStack(Material.BRICK, 4);
-            world.dropItemNaturally(block.getLocation(), i);
-            world.dropItemNaturally(block.getLocation(), e);   
+            deleteBlocks(pad.getLocation());
             update();
         }
     }

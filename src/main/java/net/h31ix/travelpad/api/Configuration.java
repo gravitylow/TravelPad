@@ -36,6 +36,11 @@ public class Configuration {
     
     public boolean anyBreak = false;
     
+    public boolean emitWater = false;
+    
+    public int center = 0;
+    public int outline = 0;
+    
     private List<Pad> padList;
     private List<UnnamedPad> unvList;
     
@@ -53,7 +58,37 @@ public class Configuration {
                 Logger.getLogger(Configuration.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+        if (config.getString("Portal Options.Emit water on creation") == null)
+        {
+            config.set("Portal Options.Emit water on creation", true);
+            try {
+                config.save(configFile);
+            } catch (IOException ex) {
+                Logger.getLogger(Configuration.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } 
+        if (config.getString("Portal Options.Center block id") == null)
+        {
+            config.set("Portal Options.Center block id", 49);
+            try {
+                config.save(configFile);
+            } catch (IOException ex) {
+                Logger.getLogger(Configuration.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }      
+        if (config.getString("Portal Options.Outline block id") == null)
+        {
+            config.set("Portal Options.Outline block id", 45);
+            try {
+                config.save(configFile);
+            } catch (IOException ex) {
+                Logger.getLogger(Configuration.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }       
+        center = config.getInt("Portal Options.Center block id");
+        outline = config.getInt("Portal Options.Outline block id");
         anyBreak = config.getBoolean("Portal Options.Allow any player to break");
+        emitWater = config.getBoolean("Portal Options.Emit water on creation");
         requireItem = config.getBoolean("Teleportation Options.Require item");
         if (requireItem)
         {

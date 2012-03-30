@@ -16,6 +16,7 @@ public class TravelPadTeleportEvent extends Event implements Cancellable {
     public TravelPadTeleportEvent(Pad to, Pad from, Player player) {
         this.to = to;
         this.from = from;
+        this.player = player;
     }
     
     public boolean isCancelled() {

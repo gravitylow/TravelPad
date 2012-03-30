@@ -1,5 +1,6 @@
 package net.h31ix.travelpad;
 
+import net.h31ix.travelpad.api.Configuration;
 import net.h31ix.travelpad.api.Pad;
 import net.h31ix.travelpad.api.TravelPadManager;
 import net.h31ix.travelpad.api.UnnamedPad;
@@ -20,11 +21,13 @@ public class TravelPadBlockListener implements Listener {
     
     private Travelpad plugin;
     private TravelPadManager manager;
+    private Configuration config;
     
     public TravelPadBlockListener(Travelpad plugin)
     {
         this.plugin = plugin;
         manager = plugin.manager;
+        this.config = manager.config;
     }
     
     @EventHandler
@@ -33,9 +36,9 @@ public class TravelPadBlockListener implements Listener {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK)
         {
             Block block = event.getClickedBlock();
-            if (block.getType() == Material.OBSIDIAN)
+            if (block.getTypeId() == config.center)
             {
-                if (block.getRelative(BlockFace.EAST).getType() == Material.BRICK && block.getRelative(BlockFace.WEST).getType() == Material.BRICK && block.getRelative(BlockFace.NORTH).getType() == Material.BRICK && block.getRelative(BlockFace.SOUTH).getType() == Material.BRICK)
+                if (block.getRelative(BlockFace.EAST).getTypeId() == config.outline && block.getRelative(BlockFace.WEST).getTypeId() == config.outline && block.getRelative(BlockFace.NORTH).getTypeId() == config.outline && block.getRelative(BlockFace.SOUTH).getTypeId() == config.outline)
                 {
                     Player player = event.getPlayer();
                     if (plugin.canCreate(player))
@@ -60,9 +63,9 @@ public class TravelPadBlockListener implements Listener {
         }      
         else
         {
-            if (block.getType() == Material.OBSIDIAN)
+            if (block.getTypeId() == config.center)
             {
-                if (block.getRelative(BlockFace.EAST).getType() == Material.BRICK && block.getRelative(BlockFace.WEST).getType() == Material.BRICK && block.getRelative(BlockFace.NORTH).getType() == Material.BRICK && block.getRelative(BlockFace.SOUTH).getType() == Material.BRICK)
+                if (block.getRelative(BlockFace.EAST).getTypeId() == config.outline && block.getRelative(BlockFace.WEST).getTypeId() == config.outline && block.getRelative(BlockFace.NORTH).getTypeId() == config.outline && block.getRelative(BlockFace.SOUTH).getTypeId() == config.outline)
                 {
                     Player player = event.getPlayer();
                     if (plugin.canCreate(player))
@@ -78,7 +81,7 @@ public class TravelPadBlockListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event)
     {
         Block block = event.getBlock();
-        if (block.getType() == Material.OBSIDIAN)
+        if (block.getTypeId() == config.center)
         {
             Pad pad = manager.getPadAt(block.getLocation());
             UnnamedPad upad = plugin.getUnnamedPadAt(block.getLocation());

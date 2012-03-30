@@ -10,4 +10,8 @@ Portal Options:
   Refund on deletion: false
   Creation charge: 30.0
   Deletion return: 10.0
-  Allow any player to break: false  
+  Allow any player to break: false
+  Emit water on creation: true
+  #49 = Obsidian 45 = Brick
+  Center block id: 49
+  Outline block id: 45

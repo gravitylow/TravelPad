@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.h31ix.travelpad</groupId>
     <artifactId>TravelPad</artifactId>
-    <version>1.8.3</version>
+    <version>1.8.4</version>
     <name>TravelPad</name>
     <url>http://H31IX.NET/</url>
     <repositories>
@@ -28,7 +28,7 @@
         <dependency>
             <groupId>org.bukkit</groupId>
             <artifactId>bukkit</artifactId>
-            <version>1.1-R8</version>
+            <version>1.2.4-R0.1-SNAPSHOT</version>
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
