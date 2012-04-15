@@ -118,11 +118,13 @@ public class Configuration {
     
     public List getPads()
     {
+        load();
         return padList;
     }
     
     public List getUnnamedPads()
     {
+        load();
         return unvList;
     }
     
@@ -202,6 +204,8 @@ public class Configuration {
     
     public void load()
     {
+        pads = YamlConfiguration.loadConfiguration(padsFile);
+        config = YamlConfiguration.loadConfiguration(configFile);
         List list = pads.getList("pads");
         padList = new ArrayList<Pad>();
         if (list != null)
@@ -233,27 +237,34 @@ public class Configuration {
                 String player = pad[4];
                 unvList.add(new UnnamedPad(new Location(world,x,y,z),Bukkit.getPlayer(player)));
             }      
-        }   
+        }  
     }
     
     public void save()
     {
-        List padListString = new ArrayList<String>();
-        for (int i=0;i<padList.size();i++)
+        List padListString;
+        if (padList != null)
         {
-            Pad pad = (Pad)padList.get(i);
-            Location loc = pad.getLocation();
-            padListString.add(pad.getName()+"/"+(int)loc.getX()+"/"+(int)loc.getY()+"/"+(int)loc.getZ()+"/"+loc.getWorld().getName()+"/"+pad.getOwner());
+            padListString = new ArrayList<String>();
+            for (int i=0;i<padList.size();i++)
+            {
+                Pad pad = (Pad)padList.get(i);
+                Location loc = pad.getLocation();
+                padListString.add(pad.getName()+"/"+(int)loc.getX()+"/"+(int)loc.getY()+"/"+(int)loc.getZ()+"/"+loc.getWorld().getName()+"/"+pad.getOwner());
+            }
+            pads.set("pads", padListString);
         }
-        pads.set("pads", padListString);
-        padListString = new ArrayList<String>();
-        for (int i=0;i<unvList.size();i++)
+        if (unvList != null)
         {
-            UnnamedPad pad = (UnnamedPad)unvList.get(i);
-            Location loc = pad.getLocation();
-            padListString.add((int)loc.getX()+"/"+(int)loc.getY()+"/"+(int)loc.getZ()+"/"+loc.getWorld().getName()+"/"+pad.getOwner().getName());
+            padListString = new ArrayList<String>();
+            for (int i=0;i<unvList.size();i++)
+            {
+                UnnamedPad pad = (UnnamedPad)unvList.get(i);
+                Location loc = pad.getLocation();
+                padListString.add((int)loc.getX()+"/"+(int)loc.getY()+"/"+(int)loc.getZ()+"/"+loc.getWorld().getName()+"/"+pad.getOwner().getName());
+            }
+            pads.set("unv", padListString);
         }
-        pads.set("unv", padListString);
         try {
             pads.save(padsFile);
         } catch (IOException ex) {

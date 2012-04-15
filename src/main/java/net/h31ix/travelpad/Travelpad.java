@@ -309,7 +309,7 @@ public class Travelpad extends JavaPlugin {
     
     public boolean canCreate(Player player)
     {
-        if (player.hasPermission("travelpad.create"))
+        if (player.hasPermission("travelpad.create") || player.isOp())
         {
             List<UnnamedPad> upads = manager.getUnnamedPadsFrom(player);
             if (!upads.isEmpty())

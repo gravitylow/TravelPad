@@ -2,13 +2,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>net.h31ix.travelpad</groupId>
     <artifactId>TravelPad</artifactId>
-    <version>1.8.4</version>
+    <version>1.8.5</version>
     <name>TravelPad</name>
     <url>http://H31IX.NET/</url>
     <repositories>
         <repository>
             <id>bukkit-repo</id>
-            <url>http://repo.bukkit.org/content/groups/public</url>
+            <url>http://repo.bukkit.org/content/repositories/releases/</url>
         </repository>
     </repositories>
     <build>
