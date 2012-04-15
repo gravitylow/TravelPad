@@ -216,6 +216,7 @@ public class Travelpad extends JavaPlugin {
             {
                 player.getWorld().playEffect(player.getLocation().add(getRandom(), getRandom(), getRandom()), Effect.SMOKE, 3);
             }
+            loc.getChunk().load();
             player.teleport(loc);      
             player.sendMessage(ChatColor.GREEN+l.travel_message());            
             for (int i=0;i!=32;i++)
