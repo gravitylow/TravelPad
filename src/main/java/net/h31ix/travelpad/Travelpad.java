@@ -26,7 +26,6 @@ public class Travelpad extends JavaPlugin {
     public LangManager l;
     private Economy economy;
     
-    
     @Override
     public void onDisable() {
     }
@@ -290,7 +289,7 @@ public class Travelpad extends JavaPlugin {
             economy = economyProvider.getProvider();
         }
         return (economy != null);
-    }      
+    }     
     
     public boolean doesPadExist(String name)
     {

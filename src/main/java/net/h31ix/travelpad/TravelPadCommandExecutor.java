@@ -116,23 +116,30 @@ public class TravelPadCommandExecutor implements CommandExecutor {
                 }  
                 else if (args[0].equalsIgnoreCase("name") || args[0].equalsIgnoreCase("n"))
                 {
-                    if (manager.nameIsValid(args[1]))
+                    if(args[1].contains("/"))
                     {
-                        String name = args[1];
-                        boolean set = plugin.namePad(player, name);
-                        if (set)
-                        {
-                            player.sendMessage(ChatColor.GREEN+l.name_message()+ChatColor.WHITE+" "+name);
-                        }
-                        else
-                        {
-                            player.sendMessage(ChatColor.RED+l.name_deny_nopad());
-                        }
+                        player.sendMessage(ChatColor.RED+"Please do not use '/' in the TravelPad name!");
                     }
                     else
                     {
-                        player.sendMessage(ChatColor.RED+l.name_deny_inuse());
-                    }                  
+                        if (manager.nameIsValid(args[1]))
+                        {
+                            String name = args[1];
+                            boolean set = plugin.namePad(player, name);
+                            if (set)
+                            {
+                                player.sendMessage(ChatColor.GREEN+l.name_message()+ChatColor.WHITE+" "+name);
+                            }
+                            else
+                            {
+                                player.sendMessage(ChatColor.RED+l.name_deny_nopad());
+                            }
+                        }
+                        else
+                        {
+                            player.sendMessage(ChatColor.RED+l.name_deny_inuse());
+                        } 
+                    }
                 }
                 else if (args[0].equalsIgnoreCase("delete") || args[0].equalsIgnoreCase("d"))
                 {
