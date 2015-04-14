@@ -86,13 +86,15 @@ public class Travelpad extends JavaPlugin {
         List<Pad> list = manager.getPads();
         for (Pad pad : list)
         {
-            int x = (int)pad.getLocation().getX();
-            int y = (int)pad.getLocation().getY();
-            int z = (int)pad.getLocation().getZ();
-            int xx = (int)location.getX();
-            int yy = (int)location.getY();
-            int zz = (int)location.getZ();
-            if (x <= xx+2 && x >= xx-2 && y <= yy+2 && y >= yy-2 && z <= zz+2 && z >= zz-2)
+            int padX = (int)pad.getLocation().getX();
+            int padY = (int)pad.getLocation().getY();
+            int padZ = (int)pad.getLocation().getZ();
+            String padWorld = pad.getLocation().getWorld().getName();
+            int locX = (int)location.getX();
+            int locY = (int)location.getY();
+            int locZ = (int)location.getZ();
+            String locWorld = location.getWorld().getName();
+            if (padX <= locX+2 && padX >= locX-2 && padY <= locY+2 && padY >= locY-2 && padZ <= locZ+2 && padZ >= locZ-2 && padWorld.equals(locWorld))
             {
                 return pad;
             }   
